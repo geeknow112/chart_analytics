@@ -85,13 +85,13 @@ for i,price in df.iterrows():
 
 #df.plot(style=['-'])
 
-ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="Moving Ave(5)")
+ax.plot(df.index, df['close'].rolling(5).mean(), color='r', linewidth=1.5, label="Moving Ave(5)")
 ax.plot(df.index, df['close'].rolling(20).mean(), color='g', label="Moving Ave(20)")
 ax.plot(df.index, df['close'].rolling(60).mean(), color='b', label="Moving Ave(60)")
 ax.plot(df.index, df['close'].rolling(75).mean(), color='y', label="Moving Ave(75)")
 ax.plot(df.index, df['close'].rolling(100).mean(), color='orange', label="Moving Ave(100)")
 ax.plot(df.index, df['close'].rolling(200).mean(), color='gold', label="Moving Ave(200)")
-ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', label="Moving Ave(300)")
+ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', linestyle='solid', linewidth=0.5, label="Moving Ave(300)")
 #ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="Moving Ave(5)")
 #plt.scatter(50, 2500, s=100, marker="o",color='gold')
 plt.scatter(x= df.index,y = df['golden_flag'],marker='o',color='gold')
@@ -106,8 +106,8 @@ cols = ['close']
 for arr in talib.BBANDS(df['close'], timeperiod=25, nbdevup=1, nbdevdn=1, matype=0): output = np.c_[output, arr]
 cols += ['BBANDS_upperband', 'BBANDS_middleband', 'BBANDS_lowerband']
 d1 = pd.DataFrame(output, index=df.index, columns=cols)
-ax.plot(df.index, d1['BBANDS_upperband'], color='lightpink', label="bbands_upp_1")
-ax.plot(df.index, d1['BBANDS_lowerband'], color='lightpink', label="bbands_low_1")
+ax.plot(df.index, d1['BBANDS_upperband'], color='lightpink', linewidth=0.5, label="bbands_upp_1")
+ax.plot(df.index, d1['BBANDS_lowerband'], color='lightpink', linewidth=0.5, label="bbands_low_1")
 
 df.sort_index(ascending=True, inplace=True)
 close = np.array(df['close'])
@@ -117,12 +117,12 @@ cols = ['close']
 for arr in talib.BBANDS(df['close'], timeperiod=25, nbdevup=2, nbdevdn=2, matype=0): output = np.c_[output, arr]
 cols += ['BBANDS_upperband', 'BBANDS_middleband', 'BBANDS_lowerband']
 d2 = pd.DataFrame(output, index=df.index, columns=cols)
-ax.plot(df.index, d2['BBANDS_upperband'], color='lightgreen', label="bbands_upp_2")
-ax.plot(df.index, d2['BBANDS_lowerband'], color='lightgreen', label="bbands_low_2")
+ax.plot(df.index, d2['BBANDS_upperband'], color='lightgreen', linewidth=0.5, label="bbands_upp_2")
+ax.plot(df.index, d2['BBANDS_lowerband'], color='lightgreen', linewidth=0.5, label="bbands_low_2")
 #pprint(d)%exit()
 
 #grid
-ax.grid()
+ax.grid(color='gray', linewidth=0.5, linestyle="dashed")
 ax.set_xlim(-1, len(df))
 fig.autofmt_xdate()
 ''''''
