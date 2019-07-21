@@ -1,11 +1,32 @@
 #https://qiita.com/matsu0228/items/edf7dbba9b0b0246ef8f
+import csv
 import requests
 from bs4 import BeautifulSoup
 
-url = 'https://info.finance.yahoo.co.jp/search/?query=%E5%95%86%E8%88%B9%E4%B8%89%E4%BA%95'
+uri = 'https://kabuoji3.com/stock/'
+num = ['9101', '9104', '9107']
 
-r = requests.get(url)
-soup = BeautifulSoup(r.text, 'lxml')
+dic = dict()
+for i in num:
+    l = list()
+    d = list()
+    url = uri + i + '/'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, 'lxml')
+    tr = soup.find_all('tr')[1]
+    td = tr.find_all('td')
+    l.append(td)
+    for j in l:
+        for k in j:
+            d.append(k.text)
+    dic[i] = d
 
-for a in soup.find_all('a'):
-    print(a.get('href'))
+#print(dic)%exit()
+
+filepath = './9104_2019.csv'
+with open(filepath, 'a') as f:
+    writer = csv.writer(f, delimiter=",", quotechar='"', quoting=csv.QUOTE_ALL)
+    writer.writerow(dic['9104'])
+    #print(dic['9104'], file=f)
+
+
