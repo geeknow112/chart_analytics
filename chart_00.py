@@ -5,8 +5,8 @@ import matplotlib.dates as mdates
 import mpl_finance as mpf
 from pprint import pprint
 import datetime as dt
-
 csv = "./9104_2019.csv"
+
 #print(os.path.exists(csv))
 #exit()
 
