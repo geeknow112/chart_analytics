@@ -1,7 +1,7 @@
 import time
 from selenium import webdriver
 #import chromedriver_binary
-#https://qiita.com/memakura/items/20a02161fa7e18d8a693
+#https://qiita.com/memakura/items/20a02161fa7e18d8a69
 
 #driver = webdriver.Chrome()
 driver = webdriver.Chrome(executable_path='.\\chromedriver_win32\\chromedriver.exe')

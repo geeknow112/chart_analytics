@@ -1,4 +1,4 @@
-#https://qiita.com/matsu0228/items/edf7dbba9b0b0246ef8f
+#https://qiita.com/matsu0238/items/edf7dbba9b0b0246ef8f
 import csv
 import requests
 from bs4 import BeautifulSoup
