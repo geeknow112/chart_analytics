@@ -56,76 +56,63 @@ df['av_5'] = df['close'].rolling(window=term_5).mean()
 df['av_20'] = df['close'].rolling(window=term_20).mean()
 df['av_60'] = df['close'].rolling(window=term_60).mean()
 
+# ゴールデンクロスしたタイミングの抽出
+def pointGoldenCross(status = '5_20', current_flag = 0, previous_flag = 1):
+    if (status == '5_20'):
+        ma = {'pointString':'golden_5_20', 1:'av_5', 2:'av_20'}
+    elif (status == '20_60'):
+        ma = {'pointString':'golden_20_60', 1:'av_20', 2:'av_60'}
+    else:
+        ma = {'pointString':'golden_5_20', 1:'av_5', 2:'av_20'}
+
+    for i, price in df.iterrows():
+        if (price[ma[1]] > price[ma[2]]):
+            current_flag = 1
+        else:
+            current_flag = 0
+
+        if (current_flag * (1 - previous_flag)):
+            df.loc[i, ma['pointString']] = price[ma[2]]
+        else:
+            df.loc[i, ma['pointString']] = None
+
+        previous_flag = current_flag
+
 df['golden_5_20'] = 0
-current_flag = 0
-previous_flag = 1
-for i, price in df.iterrows():
-    # ゴールデンクロスしたタイミングの抽出
-    if (price['av_5'] > price['av_20']):
-        current_flag = 1
-    else:
-        current_flag = 0
-
-    if(current_flag * (1 - previous_flag)):
-        df.loc[i, 'golden_5_20'] = price['av_20']
-    else:
-        df.loc[i, 'golden_5_20'] = None
-
-    previous_flag = current_flag
+pointGoldenCross('5_20')
 
 df['golden_20_60'] = 0
-current_flag = 0
-previous_flag = 1
-for i, price in df.iterrows():
-    # ゴールデンクロスしたタイミングの抽出
-    if (price['av_20'] > price['av_60']):
-        current_flag = 1
-    else:
-        current_flag = 0
-
-    if(current_flag * (1 - previous_flag)):
-        df.loc[i, 'golden_20_60'] = price['av_60']
-    else:
-        df.loc[i, 'golden_20_60'] = None
-
-    previous_flag = current_flag
-
+pointGoldenCross('20_60')
 #pprint(df['golden_20-60'])
 #exit()
 
+# デッドクロスのタイミングの抽出
+def pointDedCross(status = '5_20', current_flag = 0, previous_flag = 1):
+    if (status == '5_20'):
+        ma = {'pointString':'ded_5_20', 1:'av_5', 2:'av_20'}
+    elif (status == '20_60'):
+        ma = {'pointString':'ded_20_60', 1:'av_20', 2:'av_60'}
+    else:
+        ma = {'pointString':'ded_5_20', 1:'av_5', 2:'av_20'}
+
+    for i, price in df.iterrows():
+        if (price[ma[1]] < price[ma[2]]):
+            current_flag = 1
+        else:
+            current_flag = 0
+
+        if (current_flag * (1 - previous_flag)):
+            df.loc[i, ma['pointString']] = price[ma[2]]
+        else:
+            df.loc[i, ma['pointString']] = None
+
+        previous_flag = current_flag
+
 df['ded_5_20'] = 0
-current_flag = 0
-previous_flag = 1
-for i, price in df.iterrows():
-    # デッドクロスのタイミングの抽出
-    if (price['av_5'] < price['av_20']):
-        current_flag = 1
-    else:
-        current_flag = 0
-
-    if(current_flag * (1 - previous_flag)):
-        df.loc[i, 'ded_5_20'] = price['av_20']
-    else:
-        df.loc[i, 'ded_5_20'] = None
-
-    previous_flag = current_flag
+pointDedCross('5_20')
 
 df['ded_20_60'] = 0
-current_flag = 0
-previous_flag = 1
-for i, price in df.iterrows():
-    # デッドクロスのタイミングの抽出
-    if (price['av_20'] < price['av_60']):
-        current_flag = 1
-    else:
-        current_flag = 0
-
-    if(current_flag * (1 - previous_flag)):
-        df.loc[i, 'ded_20_60'] = price['av_60']
-    else:
-        df.loc[i, 'ded_20_60'] = None
-
-    previous_flag = current_flag
+pointDedCross('20_60')
 
 #pprint(df['ded_5_20'])
 
