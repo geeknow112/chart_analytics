@@ -45,8 +45,10 @@ w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
 xtick0 = (5-w)%5
 #pprint(xtick0)%exit()
 
+#グラフのx軸の日付の調整
 #plt.xticks(range(xtick0,len(df),5), [x.strftime('%Y-%m-%d') for x in df.index][xtick0::5])
-plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
+#plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
+plt.xticks(range(xtick0,len(df),5), [x for x in df.index][xtick0::5])
 
 term_5 = 5
 term_20 = 20
