@@ -205,33 +205,5 @@ for dt, price in df.iterrows():
 
 #ax.axvspan(start_dt, end_dt, facecolor = "red", alpha=0.2)
 
-'''
-ppp = np.array( [] )
-for i,price in df.iterrows():
-    if (price['av_5'] > price['av_20']):
-        ppp = np.append( ppp, i )
-
-index = 0
-for j in ppp:
-    index += 1
-    if (index > 50):
-        break
-
-    cr_dt = dt.datetime.strptime(j, '%Y-%m-%d')
-    nx_dt = cr_dt + dt.timedelta(days=1)
-    cr = cr_dt.strftime('%Y-%m-%d')
-    nx = nx_dt.strftime('%Y-%m-%d')
-    if (ppp[index] == nx):
-        #pprint('#' + ppp[index] + ' ' + nx)
-        continue
-    else:
-        pprint(cr + ' ' + nx)
-        ax.axvspan(cr, nx, facecolor = "red", alpha=0.1)
-    del cr, nx, cr_dt, nx_dt
-
-    #ax.axvspan('2019-03-01', '2019-04-01', facecolor = "red", alpha=0.2)
-    #ax.axvspan(40, 50, facecolor = "blue", alpha=0.2)
-'''
-
 plt.legend()
 plt.show()
