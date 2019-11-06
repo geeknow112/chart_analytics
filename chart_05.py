@@ -140,6 +140,7 @@ fig.autofmt_xdate()
 #exit()
 
 #axvspan
+#PPPゾーンの表示
 ppp = np.array( [] )
 start_dt = ''
 end_dt = ''
