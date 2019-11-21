@@ -8,7 +8,7 @@ import datetime as dt
 import numpy as np
 
 #csv = "./9104_2019.csv"
-csv = "D://Users/z112/source/repos/ConsoleApp2/stock_info.csv"
+csv = "D://Users/z112/source/repos/ConsoleApp2/stock_data/9104_2019.csv"
 #print(os.path.exists(csv))
 #exit()
 
