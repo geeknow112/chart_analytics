@@ -59,20 +59,20 @@ df['av_5'] = df['close'].rolling(window=term_5).mean()
 df['av_20'] = df['close'].rolling(window=term_20).mean()
 df['av_60'] = df['close'].rolling(window=term_60).mean()
 
-# ゴールデンクロスしたタイミングの抽出
-def pointGoldenCross(status = '5_20', current_flag = 0, previous_flag = 1):
+# ゴールデンクロス/デッドクロスしたタイミングの抽出
+def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
     if (status == '5_20'):
-        ma = {'pointString':'golden_5_20', 1:'av_5', 2:'av_20'}
+        ma = {'pointString':str+'_5_20', 1:'av_5', 2:'av_20'}
     elif (status == '20_60'):
-        ma = {'pointString':'golden_20_60', 1:'av_20', 2:'av_60'}
+        ma = {'pointString':str+'_20_60', 1:'av_20', 2:'av_60'}
     else:
-        ma = {'pointString':'golden_5_20', 1:'av_5', 2:'av_20'}
+        ma = {'pointString':str+'_5_20', 1:'av_5', 2:'av_20'}
 
     for i, price in df.iterrows():
-        if (price[ma[1]] > price[ma[2]]):
-            current_flag = 1
+        if (str == 'golden'):
+            current_flag = 1 if (price[ma[1]] > price[ma[2]]) else 0
         else:
-            current_flag = 0
+            current_flag = 1 if (price[ma[1]] < price[ma[2]]) else 0
 
         if (current_flag * (1 - previous_flag)):
             df.loc[i, ma['pointString']] = price[ma[2]]
@@ -82,40 +82,18 @@ def pointGoldenCross(status = '5_20', current_flag = 0, previous_flag = 1):
         previous_flag = current_flag
 
 df['golden_5_20'] = 0
-pointGoldenCross('5_20')
+pointCross('5_20', 'golden')
 
 df['golden_20_60'] = 0
-pointGoldenCross('20_60')
+pointCross('20_60', 'golden')
 #pprint(df['golden_20-60'])
 #exit()
 
-# デッドクロスのタイミングの抽出
-def pointDedCross(status = '5_20', current_flag = 0, previous_flag = 1):
-    if (status == '5_20'):
-        ma = {'pointString':'ded_5_20', 1:'av_5', 2:'av_20'}
-    elif (status == '20_60'):
-        ma = {'pointString':'ded_20_60', 1:'av_20', 2:'av_60'}
-    else:
-        ma = {'pointString':'ded_5_20', 1:'av_5', 2:'av_20'}
-
-    for i, price in df.iterrows():
-        if (price[ma[1]] < price[ma[2]]):
-            current_flag = 1
-        else:
-            current_flag = 0
-
-        if (current_flag * (1 - previous_flag)):
-            df.loc[i, ma['pointString']] = price[ma[2]]
-        else:
-            df.loc[i, ma['pointString']] = None
-
-        previous_flag = current_flag
-
 df['ded_5_20'] = 0
-pointDedCross('5_20')
+pointCross('5_20', 'ded')
 
 df['ded_20_60'] = 0
-pointDedCross('20_60')
+pointCross('20_60', 'ded')
 
 #pprint(df['ded_5_20'])
 
