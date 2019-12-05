@@ -120,68 +120,44 @@ fig.autofmt_xdate()
 
 #axvspan
 #PPPゾーンの表示
+def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
+    color = 'red' if (str == 'golden') else 'blue'
+    if (str == 'golden'):
+        opposite = 'ded'
+    else:
+        opposite = 'golden'
+
+    for dt, price in df.iterrows():
+        start_flag = df.loc[dt][str+'_5_20']
+        end_flag = df.loc[dt][opposite+'_5_20']
+        status_20_60 = df.loc[dt][str+'_20_60']
+        if (np.isnan(start_flag) == False):
+            start_dt = dt
+            # pprint(dt)
+            pprint(start_dt)
+
+        if (np.isnan(end_flag) == False):
+            end_dt = dt
+            # pprint(dt)
+            pprint(end_dt)
+
+        if (np.isnan(status_20_60) == False):
+            dt_20_60 = dt
+            # pprint(dt)
+            pprint(dt_20_60)
+
+        if (start_dt and end_dt):
+            ax.axvspan(start_dt, end_dt, facecolor=color, alpha=0.1)
+            if (dt_20_60 and end_dt):
+                ax.axvspan(dt_20_60, end_dt, facecolor=color, alpha=0.2)
+            strat_dt = ''
+            end_dt = ''
+            dt_20_60 = ''
+
+
 ppp = np.array( [] )
-start_dt = ''
-end_dt = ''
-golden_20_60_dt = ''
-for dt, price in df.iterrows():
-    golden_5_20 = df.loc[dt]['golden_5_20']
-    end_flag = df.loc[dt]['ded_5_20']
-    golden_20_60 = df.loc[dt]['golden_20_60']
-    if (np.isnan(golden_5_20) == False):
-        start_dt = dt
-        #pprint(dt)
-        pprint(start_dt)
-
-    if (np.isnan(end_flag) == False):
-        end_dt = dt
-        #pprint(dt)
-        pprint(end_dt)
-
-    if (np.isnan(golden_20_60) == False):
-        golden_20_60_dt = dt
-        #pprint(dt)
-        pprint(golden_20_60_dt)
-
-    if (start_dt and end_dt):
-        ax.axvspan(start_dt, end_dt, facecolor = "red", alpha=0.1)
-        if (golden_20_60_dt and end_dt):
-            ax.axvspan(golden_20_60_dt, end_dt, facecolor = "red", alpha=0.2)
-        strat_dt = ''
-        end_dt = ''
-        golden_20_60_dt = ''
-
-ppp = np.array( [] )
-start_dt = ''
-end_dt = ''
-ded_20_60_dt = ''
-for dt, price in df.iterrows():
-    start_flag = df.loc[dt]['ded_5_20']
-    end_flag = df.loc[dt]['golden_5_20']
-    ded_20_60 = df.loc[dt]['ded_20_60']
-    if (np.isnan(start_flag) == False):
-        start_dt = dt
-        #pprint(dt)
-        pprint(start_dt)
-
-    if (np.isnan(end_flag) == False):
-        end_dt = dt
-        #pprint(dt)
-        pprint(end_dt)
-
-    if (np.isnan(ded_20_60) == False):
-        ded_20_60_dt = dt
-        #pprint(dt)
-        pprint(ded_20_60_dt)
-
-    if (start_dt and end_dt):
-        ax.axvspan(start_dt, end_dt, facecolor = "blue", alpha=0.1)
-        if (ded_20_60_dt and end_dt):
-            ax.axvspan(ded_20_60_dt, end_dt, facecolor = "blue", alpha=0.2)
-        strat_dt = ''
-        end_dt = ''
-        ded_20_60_dt = ''
-        #break
+zoneColor('golden')
+zoneColor('ded')
 
 #ax.axvspan(start_dt, end_dt, facecolor = "red", alpha=0.2)
 
