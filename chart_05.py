@@ -51,9 +51,7 @@ xtick0 = (5-w)%5
 #plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
 plt.xticks(range(xtick0,len(df),5), [x for x in df.index][xtick0::5])
 
-term_5 = 5
-term_20 = 20
-term_60 = 60
+term_5, term_20, term_60 = 5, 20, 60
 
 df['av_5'] = df['close'].rolling(window=term_5).mean()
 df['av_20'] = df['close'].rolling(window=term_20).mean()
@@ -82,21 +80,15 @@ def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
         previous_flag = current_flag
 
 df['golden_5_20'] = 0
-pointCross('5_20', 'golden')
-
 df['golden_20_60'] = 0
-pointCross('20_60', 'golden')
-#pprint(df['golden_20-60'])
-#exit()
-
 df['ded_5_20'] = 0
-pointCross('5_20', 'ded')
-
 df['ded_20_60'] = 0
+pointCross('5_20', 'golden')
+pointCross('20_60', 'golden')
+pointCross('5_20', 'ded')
 pointCross('20_60', 'ded')
 
 #pprint(df['ded_5_20'])
-
 #df.plot(style=['-'])
 
 ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
