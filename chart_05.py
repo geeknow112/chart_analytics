@@ -35,9 +35,7 @@ ax = plt.subplot()
 
 ohlc = np.vstack((range(len(df)), df.values.T)).T
 mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
-
 w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
-
 xtick0 = (5-w)%5
 
 #グラフのx軸の日付の調整
@@ -46,7 +44,6 @@ xtick0 = (5-w)%5
 plt.xticks(range(xtick0,len(df),5), [x for x in df.index][xtick0::5])
 
 term_5, term_20, term_60 = 5, 20, 60
-
 df['av_5'] = df['close'].rolling(window=term_5).mean()
 df['av_20'] = df['close'].rolling(window=term_20).mean()
 df['av_60'] = df['close'].rolling(window=term_60).mean()
