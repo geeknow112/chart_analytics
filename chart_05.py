@@ -10,13 +10,10 @@ import numpy as np
 csv = "../stock_data/9101_2019.csv"
 #csv = "D://Users/z112/source/repos/ConsoleApp2/stock_data/9104_2019.csv"
 #csv = "C:/Users/r2d2/source/repos/chart_gallery/stock_data/9101_2019.csv"
-#print(os.path.exists(csv))
-#exit()
 
 def DataRead():
     with open(csv, "r") as csv_file:
         df = pd.read_csv(csv_file, quotechar='"', header=2, index_col=0)
-#exit()
 
 with open(csv, 'r') as csv_file:
     df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0)
@@ -30,7 +27,6 @@ df_.index = [mdates.date2num(i) for i in new]
 #df_.index = mdates.date2num(df_.index)
 data = df_.reset_index().values
 
-''''''
 #https://qiita.com/toyolab/items/1b5d11b5d376bd542022
 #https://qiita.com/kjybinp1105/items/db4efd07e20000c22f4e
 
@@ -41,10 +37,8 @@ ohlc = np.vstack((range(len(df)), df.values.T)).T
 mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
 
 w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
-#pprint(w)%exit()
 
 xtick0 = (5-w)%5
-#pprint(xtick0)%exit()
 
 #グラフのx軸の日付の調整
 #plt.xticks(range(xtick0,len(df),5), [x.strftime('%Y-%m-%d') for x in df.index][xtick0::5])
@@ -88,27 +82,28 @@ pointCross('20_60', 'golden')
 pointCross('5_20', 'ded')
 pointCross('20_60', 'ded')
 
-#pprint(df['ded_5_20'])
-#df.plot(style=['-'])
+def plotMA():
+    ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
+    ax.plot(df.index, df['close'].rolling(20).mean(), color='g', label="MA(20)")
+    ax.plot(df.index, df['close'].rolling(60).mean(), color='b', label="MA(60)")
+    ax.plot(df.index, df['close'].rolling(75).mean(), color='y', label="MA(75)")
+    ax.plot(df.index, df['close'].rolling(100).mean(), color='orange', label="MA(100)")
+    ax.plot(df.index, df['close'].rolling(200).mean(), color='gold', label="MA(200)")
+    ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', label="MA(300)")
+    #ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="MA(5)")
+plotMA()
 
-ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
-ax.plot(df.index, df['close'].rolling(20).mean(), color='g', label="MA(20)")
-ax.plot(df.index, df['close'].rolling(60).mean(), color='b', label="MA(60)")
-ax.plot(df.index, df['close'].rolling(75).mean(), color='y', label="MA(75)")
-ax.plot(df.index, df['close'].rolling(100).mean(), color='orange', label="MA(100)")
-ax.plot(df.index, df['close'].rolling(200).mean(), color='gold', label="MA(200)")
-ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', label="MA(300)")
-#ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="MA(5)")
-#plt.scatter(50, 2500, s=100, marker="o",color='gold')
-plt.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold')
-plt.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black')
-plt.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange')
-plt.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink')
+def scatterPoint():
+    #plt.scatter(50, 2500, s=100, marker="o",color='gold')
+    plt.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold')
+    plt.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black')
+    plt.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange')
+    plt.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink')
+scatterPoint()
+
 ax.grid()
 ax.set_xlim(-1, len(df))
 fig.autofmt_xdate()
-''''''
-#exit()
 
 #axvspan
 #PPPゾーンの表示
