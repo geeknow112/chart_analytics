@@ -6,6 +6,7 @@ import mpl_finance as mpf
 from pprint import pprint
 import datetime as dt
 import numpy as np
+import pylab
 
 csv = "../stock_data/9101_2019.csv"
 #csv = "D://Users/z112/source/repos/ConsoleApp2/stock_data/9104_2019.csv"
@@ -144,6 +145,16 @@ zoneColor('golden')
 zoneColor('ded')
 
 #ax.axvspan(start_dt, end_dt, facecolor = "red", alpha=0.2)
+
+x = y = 1
+plt.plot(x, y, marker='.', color='b')
+
+def pressKey(event):
+    if (event.key == 'right'):
+        x =+2
+        plt.plot(x, y, marker='.', color='r')
+    pprint(event.key)
+cid = fig.canvas.mpl_connect('key_press_event', pressKey)
 
 plt.legend()
 plt.show()
