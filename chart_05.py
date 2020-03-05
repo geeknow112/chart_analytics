@@ -8,9 +8,9 @@ import datetime as dt
 import numpy as np
 import pylab
 
-csv = "../stock_data/9101_2019.csv"
+#csv = "../stock_data/9101_2019.csv"
 #csv = "D://Users/z112/source/repos/ConsoleApp2/stock_data/9104_2019.csv"
-#csv = "C:/Users/r2d2/source/repos/chart_gallery/stock_data/9101_2019.csv"
+csv = "../../../source/repos/chart_gallery/stock_data/9101_2019.csv"
 
 def DataRead():
     with open(csv, "r") as csv_file:
@@ -31,23 +31,30 @@ data = df_.reset_index().values
 #https://qiita.com/toyolab/items/1b5d11b5d376bd542022
 #https://qiita.com/kjybinp1105/items/db4efd07e20000c22f4e
 
-fig = plt.figure()
-ax = plt.subplot()
+def init():
+    global fig, ax
+    fig = plt.figure()
+    ax = plt.subplot()
+init()
 
-ohlc = np.vstack((range(len(df)), df.values.T)).T
-mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
-w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
-xtick0 = (5-w)%5
+def main():
+    print('hello')
+    global fig, ax
+    ohlc = np.vstack((range(len(df)), df.values.T)).T
+    mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
+    w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
+    xtick0 = (5 - w) % 5
 
-#グラフのx軸の日付の調整
-#plt.xticks(range(xtick0,len(df),5), [x.strftime('%Y-%m-%d') for x in df.index][xtick0::5])
-#plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
-plt.xticks(range(xtick0,len(df),5), [x for x in df.index][xtick0::5])
+    # グラフのx軸の日付の調整
+    # plt.xticks(range(xtick0,len(df),5), [x.strftime('%Y-%m-%d') for x in df.index][xtick0::5])
+    # plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
+    plt.xticks(range(xtick0, len(df), 5), [x for x in df.index][xtick0::5])
 
-term_5, term_20, term_60 = 5, 20, 60
-df['av_5'] = df['close'].rolling(window=term_5).mean()
-df['av_20'] = df['close'].rolling(window=term_20).mean()
-df['av_60'] = df['close'].rolling(window=term_60).mean()
+    term_5, term_20, term_60 = 5, 20, 60
+    df['av_5'] = df['close'].rolling(window=term_5).mean()
+    df['av_20'] = df['close'].rolling(window=term_20).mean()
+    df['av_60'] = df['close'].rolling(window=term_60).mean()
+main()
 
 # ゴールデンクロス/デッドクロスしたタイミングの抽出
 def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
@@ -146,15 +153,41 @@ zoneColor('ded')
 
 #ax.axvspan(start_dt, end_dt, facecolor = "red", alpha=0.2)
 
-x = y = 1
+x = 2
+y = 2000
 plt.plot(x, y, marker='.', color='b')
+#plt.axvline(x=1, color='b')
 
 def pressKey(event):
+    global x, y
     if (event.key == 'right'):
-        x =+2
-        plt.plot(x, y, marker='.', color='r')
+        x += 1
+    if (event.key == 'left'):
+        x -= 1
+    if (event.key == 'up'):
+        y += 20
+    if (event.key == 'down'):
+        y -= 20
+
+    #plt.plot(x, y, marker='.', color='r')
+    plt.axvline(x=x, color='black')
+    plt.pause(0.1)
+    main()
     pprint(event.key)
+
 cid = fig.canvas.mpl_connect('key_press_event', pressKey)
 
+def motion(event):
+    x = event.xdata
+    y = event.ydata
+    ln_v.set_xdata(x)
+    ln_h.set_ydata(y)
+    plt.draw()
+
+#ln_v = plt.axvline(0)
+#ln_h = plt.axhline(0)
+#fig.canvas.mpl_connect('motion_notify_event', motion)
+
+# base
 plt.legend()
 plt.show()
