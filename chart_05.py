@@ -21,8 +21,7 @@ def DataRead():
         return df
 
 def init():
-    """
-    初期化
+    """ 初期化
     """
     global fig, ax
     fig = plt.figure()
@@ -30,8 +29,7 @@ def init():
     ax = plt.subplot()
 
 def main():
-    """
-    main関数
+    """ main関数
     """
     global fig, ax
     ohlc = np.vstack((range(len(df)), df.values.T)).T
@@ -52,8 +50,7 @@ def main():
     df['av_60'] = df['close'].rolling(window=term_60).mean()
 
 def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
-    """
-    ゴールデンクロス/デッドクロスしたタイミングの抽出
+    """ ゴールデンクロス/デッドクロスしたタイミングの抽出
     """
     if (status == '5_20'):
         ma = {'pointString':str+'_5_20', 1:'av_5', 2:'av_20'}
@@ -115,8 +112,7 @@ def scatterPoint():
 #        plt.scatter(x= df.index,y = df['hight'] + 75,marker='$' + str(9) + '$',color='black')
 
 def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
-    """
-    PPPゾーンの表示
+    """ PPPゾーンの表示
     """
     color = 'red' if (str == 'golden') else 'blue'
     if (str == 'golden'):
@@ -151,7 +147,103 @@ def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
             end_dt = ''
             dt_20_60 = ''
 
-df = DataRead()
+def checkSignal(df):
+    """シグナル点灯有無確認
+    """
+    pprint('=====is np.nan?')
+    for dt in df.index:
+        # if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
+        if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
+            now = df.index.get_loc(dt)  # 行番号取得
+            pprint(df.iloc[now]['k_hanshin_6'])
+            ret = dt if df.iloc[now]['k_hanshin_6'] > 0 else np.nan
+            break
+    pprint(ret)
+
+def outputSignal(df):
+    """ シグナルの表示
+    """
+    # cnt9 初期化
+    cnt = 1
+    for i in df.index:
+        df.loc[i, 'cnt9'] = np.nan
+
+    for i in df.index:
+        op = df['open']
+        cl = df['close']
+        av5 = df['av_5']
+        av7 = df['av_7']
+        av10 = df['av_10']
+        av20 = df['av_20']
+        av60 = df['av_60']
+
+        # print(i)
+        # print(op[i])
+        now = df.index.get_loc(i)  # 行番号取得
+        pre = now - 1
+        av5_p = df.iloc[pre]['av_5']
+        av20_p = df.iloc[pre]['av_20']
+        av60_p = df.iloc[pre]['av_60']
+
+        test = list()
+        test.append(i)
+        test.append('〇') if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[
+            i] else 'false'
+        # print(test)
+
+        # シグナル[下半身、逆下半身]の表示
+        center = op[i] + ((cl[i] - op[i]) * 0.5)  # ローソク足の中心値
+        graph_position_up = df['low'][i] * 0.98  # グラフで見やすいようにポジションをずらす
+        graph_position_down = df['hight'][i] * 1.02  # グラフで見やすいようにポジションをずらす
+        k_hn = graph_position_up if cl[i] > av5[i] and center > av5[i] and cl[i] > op[i] else np.nan
+        '''
+        df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
+        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
+        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
+        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
+        '''
+        df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[
+            i] else np.nan
+        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[
+            i] else np.nan
+        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[
+            i] else np.nan
+
+        gk_hn = graph_position_down if cl[i] < av5[i] and center < av5[i] and cl[i] < op[i] else np.nan
+        '''
+        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
+        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
+        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
+        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
+        '''
+        # ch_gain = lambda a, b: 'true' if a > b else 'false'
+        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[
+            i] else np.nan
+        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[
+            i] else np.nan
+        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[
+            i] else np.nan
+        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[
+            i] else np.nan
+
+        # 指標[9の法則]の表示
+        cl_pre = df.iloc[pre]['close']
+        cl_pre2 = df.iloc[pre - 1]['close']  # 2営業前の終値
+        if cl_pre2 < cl_pre < cl[i] or av5[i] < cl[i]:
+            df.loc[i, 'cnt9'] = str(cnt)
+            cnt += 1
+
+        else:
+            cnt = 1
+            df.loc[i, 'cnt9'] = np.nan
+
+        # 指標[草黒赤]の表示
+        # print(av5[i], av7[i], av10[i])
+        df.loc[i, 'kka'] = av5[i] * 0.97 if av5[i] > av7[i] > av10[i] else np.nan
+        df.loc[i, 'akk'] = av5[i] * 1.03 if av5[i] < av7[i] < av10[i] else np.nan
+
+df = DataRead() # CSV読み込み
 df_ = df.copy()
 
 new = [dt.datetime.strptime(i, '%Y-%m-%d') for i in df_.index]
@@ -160,117 +252,28 @@ df_.index = [mdates.date2num(i) for i in new]
 #df_.index = mdates.date2num(df_.index)
 data = df_.reset_index().values
 
-init()
-main()
-
-#cnt9 初期化
-cnt = 1
-for i in df.index:
-    df.loc[i, 'cnt9'] = np.nan
-
-for i in df.index:
-    op = df['open']
-    cl = df['close']
-    av5 = df['av_5']
-    av7 = df['av_7']
-    av10 = df['av_10']
-    av20 = df['av_20']
-    av60 = df['av_60']
-
-    #print(i)
-    #print(op[i])
-    now = df.index.get_loc(i) #行番号取得
-    pre = now - 1
-    av5_p = df.iloc[pre]['av_5']
-    av20_p = df.iloc[pre]['av_20']
-    av60_p = df.iloc[pre]['av_60']
-
-    test = list()
-    test.append(i)
-    test.append('〇') if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else 'false'
-    print(test)
-
-    # シグナル[下半身、逆下半身]の表示
-    center = op[i] + ((cl[i] - op[i]) * 0.5) # ローソク足の中心値
-    graph_position_up = df['low'][i] * 0.98 #グラフで見やすいようにポジションをずらす
-    graph_position_down = df['hight'][i] * 1.02 #グラフで見やすいようにポジションをずらす
-    k_hn = graph_position_up if cl[i] > av5[i] and center > av5[i] and cl[i] > op[i] else np.nan
-    '''
-    df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-    df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-    df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-    df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-    '''
-    df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-    df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-    df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-    df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-
-    gk_hn = graph_position_down if cl[i] < av5[i] and center < av5[i] and cl[i] < op[i] else np.nan
-    '''
-    df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-    df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-    df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-    df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-    '''
-    #ch_gain = lambda a, b: 'true' if a > b else 'false'
-    df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-    df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-    df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-    df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-
-    # 指標[9の法則]の表示
-    cl_pre = df.iloc[pre]['close']
-    cl_pre2 = df.iloc[pre - 1]['close'] # 2営業前の終値
-    if cl_pre2 < cl_pre < cl[i] or av5[i] < cl[i]:
-        df.loc[i, 'cnt9'] = str(cnt)
-        cnt += 1
-
-    else:
-        cnt = 1
-        df.loc[i, 'cnt9'] = np.nan
-
-    # 指標[草黒赤]の表示
-    print(av5[i], av7[i], av10[i])
-    df.loc[i, 'kka'] = av5[i] * 0.97 if av5[i] > av7[i] > av10[i] else np.nan
-    df.loc[i, 'akk'] = av5[i] * 1.03 if av5[i] < av7[i] < av10[i] else np.nan
-
-#シグナル点灯有無確認
-pprint('=====is np.nan?')
-for dt in df.index:
-    #if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
-    if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
-        now = df.index.get_loc(dt)  # 行番号取得
-        pprint(df.iloc[now]['k_hanshin_6'])
-        ret = dt if df.iloc[now]['k_hanshin_6'] > 0 else np.nan
-        break
-pprint(ret)
+init() # 初期化
+main() # メイン関数
+outputSignal(df) # シグナルの表示
+checkSignal(df) # シグナル点灯確認
 #exit()
 
-
-df['golden_5_20'] = 0
-df['golden_20_60'] = 0
-df['ded_5_20'] = 0
-df['ded_20_60'] = 0
+df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
 pointCross('5_20', 'golden')
 pointCross('20_60', 'golden')
 pointCross('5_20', 'ded')
 pointCross('20_60', 'ded')
 
-# 移動平均線表示
-plotMA()
-
-#シグナル表示
-scatterPoint()
+plotMA() # 移動平均線表示
+scatterPoint() #シグナル表示
 
 ax.grid()
 ax.set_xlim(-1, len(df))
 fig.autofmt_xdate()
 
-# PPPゾーンの表示
 ppp = np.array( [] )
-zoneColor('golden')
-zoneColor('ded')
+zoneColor('golden') # PPPゾーンの表示
+zoneColor('ded') # PPPゾーンの表示
 
 # base
 plt.legend()
