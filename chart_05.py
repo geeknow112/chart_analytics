@@ -6,18 +6,19 @@ import mpl_finance as mpf
 from pprint import pprint
 import datetime as dt
 import numpy as np
+import re
 import pylab
 
 #csv = "../stock_data/9101_2019.csv"
 #csv = "D://Users/z112/source/repos/ConsoleApp2/stock_data/9104_2019.csv"
-csv = "../../../source/repos/chart_gallery/stock_data/9101_2019.csv"
+csv = "../../../source/repos/chart_gallery/stock_data/9101.csv"
 
 def DataRead():
     with open(csv, "r") as csv_file:
         df = pd.read_csv(csv_file, quotechar='"', header=2, index_col=0)
 
 with open(csv, 'r') as csv_file:
-    df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0)
+    df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0, skiprows=range(2, 7500))
 
 df_ = df.copy()
 
@@ -34,6 +35,7 @@ data = df_.reset_index().values
 def init():
     global fig, ax
     fig = plt.figure()
+    #fig = plt.figure(figsize=(24,10), dpi=300, facecolor='w')
     ax = plt.subplot()
 init()
 
@@ -92,15 +94,29 @@ for i in df.index:
     graph_position_up = df['low'][i] * 0.98 #グラフで見やすいようにポジションをずらす
     graph_position_down = df['hight'][i] * 1.02 #グラフで見やすいようにポジションをずらす
     k_hn = graph_position_up if cl[i] > av5[i] and center > av5[i] and cl[i] > op[i] else np.nan
+    '''
     df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
     df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
     df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
     df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
+    '''
+    df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+    df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+    df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+    df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+
     gk_hn = graph_position_down if cl[i] < av5[i] and center < av5[i] and cl[i] < op[i] else np.nan
+    '''
     df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
     df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
     df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
     df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
+    '''
+    #ch_gain = lambda a, b: 'true' if a > b else 'false'
+    df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+    df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+    df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+    df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
 
     # 指標[9の法則]の表示
     cl_pre = df.iloc[pre]['close']
@@ -154,8 +170,8 @@ pointCross('20_60', 'ded')
 
 def plotMA():
     ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
-    ax.plot(df.index, df['close'].rolling(7).mean(), color='black', label="MA(7)")
-    ax.plot(df.index, df['close'].rolling(10).mean(), color='olive', label="MA(10)")
+    ax.plot(df.index, df['close'].rolling(7).mean(), color='black', label="MA(7)", linestyle=':')
+    ax.plot(df.index, df['close'].rolling(10).mean(), color='olive', label="MA(10)", linestyle=':')
     ax.plot(df.index, df['close'].rolling(20).mean(), color='g', label="MA(20)")
     ax.plot(df.index, df['close'].rolling(60).mean(), color='b', label="MA(60)")
     ax.plot(df.index, df['close'].rolling(75).mean(), color='y', label="MA(75)")
@@ -167,22 +183,22 @@ plotMA()
 
 def scatterPoint():
     #plt.scatter(50, 2500, s=100, marker="o",color='gold')
-    plt.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold')
-    plt.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black')
-    plt.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange')
-    plt.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink')
+    plt.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold', s=200, label="GC_5_20")
+    plt.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black', s=200, label="DC_5_20")
+    plt.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange', s=200, label="GC_20_60")
+    plt.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink', s=200, label="DC_20_60")
 
-    plt.scatter(x= df.index,y = df['k_hanshin'],marker='^',color='dodgerblue')
-    plt.scatter(x= df.index,y = df['k_hanshin_2'],marker='^',color='cyan')
-    plt.scatter(x= df.index,y = df['k_hanshin_5'],marker='^',color='chartreuse')
-    plt.scatter(x= df.index,y = df['k_hanshin_6'],marker='^',color='darkviolet')
-    plt.scatter(x= df.index,y = df['gk_hanshin'],marker='v',color='dodgerblue')
-    plt.scatter(x= df.index,y = df['gk_hanshin_2'],marker='v',color='cyan')
-    plt.scatter(x= df.index,y = df['gk_hanshin_5'],marker='v',color='chartreuse')
-    plt.scatter(x= df.index,y = df['gk_hanshin_6'],marker='v',color='darkviolet')
+    plt.scatter(x= df.index,y = df['k_hanshin'],marker='^',color='dodgerblue', label="K_1")
+    plt.scatter(x= df.index,y = df['k_hanshin_2'],marker='^',color='cyan', label="K_2")
+    plt.scatter(x= df.index,y = df['k_hanshin_5'],marker='^',color='chartreuse', label="K_5")
+    plt.scatter(x= df.index,y = df['k_hanshin_6'],marker='^',color='darkviolet', label="K_6")
+    plt.scatter(x= df.index,y = df['gk_hanshin'],marker='v',color='dodgerblue', label="GK_1")
+    plt.scatter(x= df.index,y = df['gk_hanshin_2'],marker='v',color='cyan', label="GK_2")
+    plt.scatter(x= df.index,y = df['gk_hanshin_5'],marker='v',color='chartreuse', label="GK_5")
+    plt.scatter(x= df.index,y = df['gk_hanshin_6'],marker='v',color='darkviolet', label="GK_6")
 
-    plt.scatter(x= df.index,y = df['kka'],marker='_',color='olive')
-    plt.scatter(x= df.index,y = df['akk'],marker='_',color='olive')
+    plt.scatter(x= df.index,y = df['kka'],marker='4',color='olive')
+    plt.scatter(x= df.index,y = df['akk'],marker='4',color='olive')
 
     cnt9 = df['cnt9'].values
     print(cnt9)
@@ -275,6 +291,12 @@ def motion(event):
 #ln_h = plt.axhline(0)
 #fig.canvas.mpl_connect('motion_notify_event', motion)
 
+#Show full screen
+#mng = plt.get_current_fig_manager()
+#mng.full_screen_toggle()
+
 # base
 plt.legend()
 plt.show()
+#plt.savefig('test.png')
+
