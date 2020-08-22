@@ -12,12 +12,15 @@ import pylab
 #https://qiita.com/toyolab/items/1b5d11b5d376bd542022
 #https://qiita.com/kjybinp1105/items/db4efd07e20000c22f4e
 
-codes = [9101]
-csv = "../../../source/repos/chart_gallery/stock_data/" + str(codes[0]) + ".csv"
-
-def DataRead():
+def dataRead():
+    cnt = 0
     with open(csv, 'r') as csv_file:
-        df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0, skiprows=range(2, 7200))
+        for line in csv_file:
+            cnt += 1
+    skips = int(cnt * 0.98)
+    print(skips)
+    with open(csv, 'r') as csv_file:
+        df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0, skiprows=range(2, skips))
         return df
 
 def init():
@@ -42,12 +45,6 @@ def main():
     # plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
     plt.xticks(range(xtick0, len(df), 5), [x for x in df.index][xtick0::5])
 
-    term_5, term_7, term_10, term_20, term_60 = 5, 7, 10, 20, 60
-    df['av_5'] = df['close'].rolling(window=term_5).mean()
-    df['av_7'] = df['close'].rolling(window=term_7).mean()
-    df['av_10'] = df['close'].rolling(window=term_10).mean()
-    df['av_20'] = df['close'].rolling(window=term_20).mean()
-    df['av_60'] = df['close'].rolling(window=term_60).mean()
 
 def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
     """ ゴールデンクロス/デッドクロスしたタイミングの抽出
@@ -104,7 +101,7 @@ def scatterPoint():
     plt.scatter(x= df.index,y = df['akk'],marker='4',color='olive')
 
     cnt9 = df['cnt9'].values
-    print(cnt9)
+    #print(cnt9)
     for i, d in df.iterrows():
         #print(d.cnt9)
         marker = '$' + str(d.cnt9) + '$' if d.cnt9 is not np.nan else ""
@@ -146,19 +143,6 @@ def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
             strat_dt = ''
             end_dt = ''
             dt_20_60 = ''
-
-def checkSignal(df):
-    """シグナル点灯有無確認
-    """
-    pprint('=====is np.nan?')
-    for dt in df.index:
-        # if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
-        if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
-            now = df.index.get_loc(dt)  # 行番号取得
-            pprint(df.iloc[now]['k_hanshin_6'])
-            ret = dt if df.iloc[now]['k_hanshin_6'] > 0 else np.nan
-            break
-    pprint(ret)
 
 def outputSignal(df):
     """ シグナルの表示
@@ -243,37 +227,69 @@ def outputSignal(df):
         df.loc[i, 'kka'] = av5[i] * 0.97 if av5[i] > av7[i] > av10[i] else np.nan
         df.loc[i, 'akk'] = av5[i] * 1.03 if av5[i] < av7[i] < av10[i] else np.nan
 
-df = DataRead() # CSV読み込み
-df_ = df.copy()
+def checkSignal(df):
+    """シグナル点灯有無確認
+    """
+    for dt in df.index:
+        # if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
+        if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
+            now = df.index.get_loc(dt)  # 行番号取得
+            #pprint(df.iloc[now]['k_hanshin_6'])
+            ret = dt if df.iloc[now]['k_hanshin'] > 0 else np.nan
+            ret2 = dt if df.iloc[now]['k_hanshin_2'] > 0 else np.nan
+            ret5 = dt if df.iloc[now]['k_hanshin_5'] > 0 else np.nan
+            ret6 = dt if df.iloc[now]['k_hanshin_6'] > 0 else np.nan
+            break
+    print(code, ret, ret2, ret5, ret6)
+    return code if ret is not np.nan or ret2 is not np.nan or ret5 is not np.nan or ret6 is not np.nan else np.nan
 
-new = [dt.datetime.strptime(i, '%Y-%m-%d') for i in df_.index]
-df_.index = [mdates.date2num(i) for i in new]
+#codes = [9101, 9104, 9107]
+codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063]
+ret_codes = list()
+for code in codes:
+    csv = "../../../source/repos/chart_gallery/stock_data/" + str(code) + ".csv"
+#csv = "../../../source/repos/chart_gallery/stock_data/" + str(codes[1]) + ".csv"
 
-#df_.index = mdates.date2num(df_.index)
-data = df_.reset_index().values
+    df = dataRead() # CSV読み込み
+    df_ = df.copy()
 
-init() # 初期化
-main() # メイン関数
-outputSignal(df) # シグナルの表示
-checkSignal(df) # シグナル点灯確認
-#exit()
+    new = [dt.datetime.strptime(i, '%Y-%m-%d') for i in df_.index]
+    df_.index = [mdates.date2num(i) for i in new]
 
-df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
-pointCross('5_20', 'golden')
-pointCross('20_60', 'golden')
-pointCross('5_20', 'ded')
-pointCross('20_60', 'ded')
+    #df_.index = mdates.date2num(df_.index)
+    data = df_.reset_index().values
 
-plotMA() # 移動平均線表示
-scatterPoint() #シグナル表示
+    term_5, term_7, term_10, term_20, term_60 = 5, 7, 10, 20, 60
+    df['av_5'] = df['close'].rolling(window=term_5).mean()
+    df['av_7'] = df['close'].rolling(window=term_7).mean()
+    df['av_10'] = df['close'].rolling(window=term_10).mean()
+    df['av_20'] = df['close'].rolling(window=term_20).mean()
+    df['av_60'] = df['close'].rolling(window=term_60).mean()
+    outputSignal(df) # シグナルの表示
+    ret_code = checkSignal(df) # シグナル点灯確認
+    ret_codes.append(ret_code)
+    print(ret_codes)
 
-ax.grid()
-ax.set_xlim(-1, len(df))
-fig.autofmt_xdate()
+    if code in ret_codes:
+        init() # グラフ初期化
+        main() # グラフメイン関数
 
-ppp = np.array( [] )
-zoneColor('golden') # PPPゾーンの表示
-zoneColor('ded') # PPPゾーンの表示
+        df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
+        pointCross('5_20', 'golden')
+        pointCross('20_60', 'golden')
+        pointCross('5_20', 'ded')
+        pointCross('20_60', 'ded')
+
+        plotMA() # 移動平均線表示
+        scatterPoint() #シグナル表示
+
+        ax.grid()
+        ax.set_xlim(-1, len(df))
+        fig.autofmt_xdate()
+
+        ppp = np.array( [] )
+        zoneColor('golden') # PPPゾーンの表示
+        zoneColor('ded') # PPPゾーンの表示
 
 # base
 plt.legend()
