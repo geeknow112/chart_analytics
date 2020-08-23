@@ -17,8 +17,8 @@ def dataRead():
     with open(csv, 'r') as csv_file:
         for line in csv_file:
             cnt += 1
-    skips = int(cnt * 0.98)
-    print(skips)
+    skips = int(cnt * 0.98) # 銘柄csvの行数を集計しその80%をskiprowsにする
+#    print(skips)
     with open(csv, 'r') as csv_file:
         df = pd.read_csv(csv_file, quotechar='"', header=1, index_col=0, skiprows=range(2, skips))
         return df
@@ -230,9 +230,18 @@ def outputSignal(df):
 def checkSignal(df):
     """シグナル点灯有無確認
     """
+
+    # 日付取得
+    from datetime import datetime, date, timedelta
+    days = list()
+    today = datetime.today()
+    for i in range(3): # 直近n日のシグナル有無を確認する
+        days.append(datetime.strftime(today - timedelta(days=i), '%Y-%m-%d'))
+    #print(days)%exit()
+
     for dt in df.index:
-        # if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
-        if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
+        #if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
+        if dt in days:
             now = df.index.get_loc(dt)  # 行番号取得
             #pprint(df.iloc[now]['k_hanshin_6'])
             ret = dt if df.iloc[now]['k_hanshin'] > 0 else np.nan
@@ -241,10 +250,21 @@ def checkSignal(df):
             ret6 = dt if df.iloc[now]['k_hanshin_6'] > 0 else np.nan
             break
     print(code, ret, ret2, ret5, ret6)
-    return code if ret is not np.nan or ret2 is not np.nan or ret5 is not np.nan or ret6 is not np.nan else np.nan
+    return code if ret is not np.nan or ret2 is not np.nan or ret5 is not np.nan or ret6 is not np.nan else ''
+
+def getCodeName(code):
+    i = cf.index.get_loc(code)
+    return cf.iloc[i]['name']
+
+conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
+with open(conf_file, 'r') as config:
+    cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
+codes = list()
+codes = [code for code in cf.index]
+#print(getCodeName(1332))%exit()
 
 #codes = [9101, 9104, 9107]
-codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063]
+#codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
     csv = "../../../source/repos/chart_gallery/stock_data/" + str(code) + ".csv"
@@ -273,6 +293,7 @@ for code in codes:
     if code in ret_codes:
         init() # グラフ初期化
         main() # グラフメイン関数
+        fig.suptitle(str(code) + ':' + getCodeName(code), fontname="MS Gothic") # title 表示
 
         df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
         pointCross('5_20', 'golden')
@@ -285,6 +306,7 @@ for code in codes:
 
         ax.grid()
         ax.set_xlim(-1, len(df))
+        #ax.text(20, 2000, 'test', size=20)
         fig.autofmt_xdate()
 
         ppp = np.array( [] )
