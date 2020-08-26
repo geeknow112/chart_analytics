@@ -187,13 +187,9 @@ def outputSignal(df):
         df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
         '''
         df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[
-            i] else np.nan
-        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[
-            i] else np.nan
-        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[
-            i] else np.nan
-
+        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
         gk_hn = graph_position_down if cl[i] < av5[i] and center < av5[i] and cl[i] < op[i] else np.nan
         '''
         df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
@@ -202,14 +198,10 @@ def outputSignal(df):
         df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
         '''
         # ch_gain = lambda a, b: 'true' if a > b else 'false'
-        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[
-            i] else np.nan
-        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[
-            i] else np.nan
-        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[
-            i] else np.nan
-        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[
-            i] else np.nan
+        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
 
         # 指標[9の法則]の表示
         cl_pre = df.iloc[pre]['close']
@@ -239,38 +231,66 @@ def checkSignal(df):
         days.append(datetime.strftime(today - timedelta(days=i), '%Y-%m-%d'))
     #print(days)%exit()
 
+    ret = list()
     for dt in df.index:
         #if dt in ['2020-08-21', '2020-08-20', '2020-08-19', '2020-08-18', '2020-08-17', '2020-08-16']:
         if dt in days:
             now = df.index.get_loc(dt)  # 行番号取得
             #pprint(df.iloc[now]['k_hanshin_6'])
-            ret = dt if df.iloc[now]['k_hanshin'] > 0 else np.nan
-            ret2 = dt if df.iloc[now]['k_hanshin_2'] > 0 else np.nan
-            ret5 = dt if df.iloc[now]['k_hanshin_5'] > 0 else np.nan
-            ret6 = dt if df.iloc[now]['k_hanshin_6'] > 0 else np.nan
+            ret.append(dt if df.iloc[now]['k_hanshin'] > 0 and df.iloc[now]['kka'] > 0 else '')
+            ret.append(dt if df.iloc[now]['k_hanshin_2'] > 0 and df.iloc[now]['kka'] > 0 else '')
+            ret.append(dt if df.iloc[now]['k_hanshin_5'] > 0 and df.iloc[now]['kka'] > 0 else '')
+            ret.append(dt if df.iloc[now]['k_hanshin_6'] > 0 and df.iloc[now]['kka'] > 0 else '')
             break
-    print(code, ret, ret2, ret5, ret6)
-    return code if ret is not np.nan or ret2 is not np.nan or ret5 is not np.nan or ret6 is not np.nan else ''
+    print(code, ret)
+    return code if ret.count('') < len(ret) else ''
 
 def getCodeName(code):
     i = cf.index.get_loc(code)
     return cf.iloc[i]['name']
 
+def connectMysql():
+    import mysql.connector as mydb
+
+    # コネクションの作成
+    conn = mydb.connect(
+        host='localhost',
+        port='3306',
+        user='root',
+        password='rage5557',
+        database='stocks'
+    )
+    return conn
+
+
+
 conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
 with open(conf_file, 'r') as config:
     cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
 codes = list()
-codes = [code for code in cf.index]
+#codes = [code for code in cf.index]
 #print(getCodeName(1332))%exit()
 
-#codes = [9101, 9104, 9107]
+codes = [9101, 9104, 9107, 6326]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
+    conn = connectMysql()
+    conn.ping(reconnect=True)
+    # print(conn.is_connected())
+    cur = conn.cursor()
+    sql = "select date, open, hight, low, close, power, End, date_position From s" + str(code) + " where id > 7600;"
+    cur.execute(sql)
+    rows = cur.fetchall()
+    sdata = pd.read_sql(sql, conn, index_col='date')
+    cur.close()
+    conn.close()
+
     csv = "../../../source/repos/chart_gallery/stock_data/" + str(code) + ".csv"
 #csv = "../../../source/repos/chart_gallery/stock_data/" + str(codes[1]) + ".csv"
 
-    df = dataRead() # CSV読み込み
+    #df = dataRead() # CSV読み込み
+    df = sdata.copy()
     df_ = df.copy()
 
     new = [dt.datetime.strptime(i, '%Y-%m-%d') for i in df_.index]
@@ -288,7 +308,9 @@ for code in codes:
     outputSignal(df) # シグナルの表示
     ret_code = checkSignal(df) # シグナル点灯確認
     ret_codes.append(ret_code)
-    print(ret_codes)
+    ret_codes.append(9101)
+    ret_codes.append(9107)
+    ret_codes.append(6326)
 
     if code in ret_codes:
         init() # グラフ初期化
@@ -312,6 +334,8 @@ for code in codes:
         ppp = np.array( [] )
         zoneColor('golden') # PPPゾーンの表示
         zoneColor('ded') # PPPゾーンの表示
+
+print(ret_codes)
 
 # base
 plt.legend()
