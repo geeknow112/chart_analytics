@@ -100,6 +100,9 @@ def scatterPoint():
     plt.scatter(x= df.index,y = df['kka'],marker='4',color='olive')
     plt.scatter(x= df.index,y = df['akk'],marker='4',color='olive')
 
+    plt.scatter(x= df.index,y = df['kai_1'],marker='s',color='red', edgecolors='black', alpha=0.3, s=300, label="in-in-harami")
+    plt.scatter(x= df.index,y = df['uri_1'],marker='s',color='blue', edgecolors='black', alpha=0.3, s=300, label="you-you-harami")
+
     cnt9 = df['cnt9'].values
     #print(cnt9)
     for i, d in df.iterrows():
@@ -219,6 +222,15 @@ def outputSignal(df):
         df.loc[i, 'kka'] = av5[i] * 0.97 if av5[i] > av7[i] > av10[i] else np.nan
         df.loc[i, 'akk'] = av5[i] * 1.03 if av5[i] < av7[i] < av10[i] else np.nan
 
+        # シグナル[買い: 陰の陰はらみ: 底値示唆]の表示
+        op = df.iloc[now]['open']
+        cl = df.iloc[now]['close']
+        op_pre = df.iloc[pre]['open']
+        cl_pre = df.iloc[pre]['close']
+        #df.loc[i, 'kai_1'] = graph_position_up * 0.97 if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
+        df.loc[i, 'kai_1'] = cl if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
+        df.loc[i, 'uri_1'] = cl if op_pre < cl_pre and op < cl and op_pre < op and cl_pre > cl else np.nan
+
 def checkSignal(df):
     """シグナル点灯有無確認
     """
@@ -271,7 +283,7 @@ codes = list()
 #codes = [code for code in cf.index]
 #print(getCodeName(1332))%exit()
 
-codes = [9101, 9104, 9107, 6326]
+codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
@@ -279,7 +291,7 @@ for code in codes:
     conn.ping(reconnect=True)
     # print(conn.is_connected())
     cur = conn.cursor()
-    sql = "select date, open, hight, low, close, power, End, date_position From s" + str(code) + " where id > 7600;"
+    sql = "select date, open, hight, low, close, power, End From s" + str(code) + " where id > 7600;"
     cur.execute(sql)
     rows = cur.fetchall()
     sdata = pd.read_sql(sql, conn, index_col='date')
@@ -311,6 +323,7 @@ for code in codes:
     ret_codes.append(9101)
     ret_codes.append(9107)
     ret_codes.append(6326)
+    ret_codes.append(4183)
 
     if code in ret_codes:
         init() # グラフ初期化
