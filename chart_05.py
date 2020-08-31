@@ -103,6 +103,9 @@ def scatterPoint():
     plt.scatter(x= df.index,y = df['kai_1'],marker='s',color='red', edgecolors='black', alpha=0.3, s=300, label="in-in-harami")
     plt.scatter(x= df.index,y = df['uri_1'],marker='s',color='blue', edgecolors='black', alpha=0.3, s=300, label="you-you-harami")
 
+    plt.scatter(x= df.index,y = df['kai_2'],marker='o',color='red', alpha=0.3, s=400, label="idaki_you")
+    plt.scatter(x= df.index,y = df['uri_2'],marker='o',color='blue', alpha=0.3, s=400, label="idaki_in")
+
     cnt9 = df['cnt9'].values
     #print(cnt9)
     for i, d in df.iterrows():
@@ -164,19 +167,11 @@ def outputSignal(df):
         av20 = df['av_20']
         av60 = df['av_60']
 
-        # print(i)
-        # print(op[i])
         now = df.index.get_loc(i)  # 行番号取得
         pre = now - 1
         av5_p = df.iloc[pre]['av_5']
         av20_p = df.iloc[pre]['av_20']
         av60_p = df.iloc[pre]['av_60']
-
-        test = list()
-        test.append(i)
-        test.append('〇') if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[
-            i] else 'false'
-        # print(test)
 
         # シグナル[下半身、逆下半身]の表示
         center = op[i] + ((cl[i] - op[i]) * 0.5)  # ローソク足の中心値
@@ -189,10 +184,11 @@ def outputSignal(df):
         df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
         df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
         '''
-        df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
-        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] else np.nan
+        df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and ch_gain(av5_p, av5[i]) is True and ch_gain(av20_p, av20[i]) is True else np.nan
+        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and ch_gain(av5_p, av5[i]) is True and ch_gain(av20_p, av20[i]) is True else np.nan
+        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and ch_gain(av5_p, av5[i]) is True and ch_gain(av20_p, av20[i]) is True else np.nan
+        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and ch_gain(av5_p, av5[i]) is True and ch_gain(av20_p, av20[i]) is True else np.nan
+
         gk_hn = graph_position_down if cl[i] < av5[i] and center < av5[i] and cl[i] < op[i] else np.nan
         '''
         df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
@@ -201,10 +197,10 @@ def outputSignal(df):
         df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
         '''
         # ch_gain = lambda a, b: 'true' if a > b else 'false'
-        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
-        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] else np.nan
+        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and ch_gain(av5_p, av5[i]) is False and ch_gain(av20_p, av20[i]) is False else np.nan
+        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and ch_gain(av5_p, av5[i]) is False and ch_gain(av20_p, av20[i]) is False else np.nan
+        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and ch_gain(av5_p, av5[i]) is False and ch_gain(av20_p, av20[i]) is False else np.nan
+        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and ch_gain(av5_p, av5[i]) is False and ch_gain(av20_p, av20[i]) is False else np.nan
 
         # 指標[9の法則]の表示
         cl_pre = df.iloc[pre]['close']
@@ -222,14 +218,35 @@ def outputSignal(df):
         df.loc[i, 'kka'] = av5[i] * 0.97 if av5[i] > av7[i] > av10[i] else np.nan
         df.loc[i, 'akk'] = av5[i] * 1.03 if av5[i] < av7[i] < av10[i] else np.nan
 
-        # シグナル[買い: 陰の陰はらみ: 底値示唆]の表示
         op = df.iloc[now]['open']
         cl = df.iloc[now]['close']
         op_pre = df.iloc[pre]['open']
         cl_pre = df.iloc[pre]['close']
+        # シグナル[買い: 陰の陰はらみ: 底値示唆]の表示
         #df.loc[i, 'kai_1'] = graph_position_up * 0.97 if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
-        df.loc[i, 'kai_1'] = cl if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
-        df.loc[i, 'uri_1'] = cl if op_pre < cl_pre and op < cl and op_pre < op and cl_pre > cl else np.nan
+        df.loc[i, 'kai_1'] = cl if low(op_pre, cl_pre) is True and low(op, cl) is True and ch_gain(op_pre, op) is False and ch_gain(cl_pre, cl) is True else np.nan
+        # シグナル[売り: 陽の陽はらみ: 利益確定タイミング]の表示
+        df.loc[i, 'uri_1'] = cl if hight(op_pre, cl_pre) is True and hight(op, cl) is True and ch_gain(op_pre, op) is True and ch_gain(cl_pre, cl) is False else np.nan
+
+        # 陽の抱き線
+        df.loc[i, 'kai_2'] = cl if idaki_sen_you(op_pre, cl_pre, op, cl) is True else np.nan
+        # 陰の抱き線
+        df.loc[i, 'uri_2'] = cl if idaki_sen_in(op_pre, cl_pre, op, cl) is True else np.nan
+
+def idaki_sen_you(op_pre, cl_pre, op, cl): # 陽の抱き線の抽出
+    return True if low(op_pre, cl_pre) is True and ch_gain(op_pre, cl) is True and ch_gain(cl_pre, op) is False and hight(op, cl) is True else np.nan
+
+def idaki_sen_in(op_pre, cl_pre, op, cl): # 陰の抱き線の抽出
+    return True if hight(op_pre, cl_pre) is True and ch_gain(cl_pre, op) is False and ch_gain(op_pre, cl) is True and low(op, cl) is True else np.nan
+
+def hight(op, cl): # 陽線の確認
+    return True if op < cl else False
+
+def low(op, cl): # 陰線の確認
+    return True if op > cl else False
+
+def ch_gain(pre_av, now_av): # 移動平均線が前日より上昇しているかどうかの判定
+    return True if pre_av < now_av else False
 
 def checkSignal(df):
     """シグナル点灯有無確認
@@ -291,7 +308,7 @@ for code in codes:
     conn.ping(reconnect=True)
     # print(conn.is_connected())
     cur = conn.cursor()
-    sql = "select date, open, hight, low, close, power, End From s" + str(code) + " where id > 7600;"
+    sql = "select date, open, hight, low, close, power, End From s" + str(code) + " where id > 7550;"
     cur.execute(sql)
     rows = cur.fetchall()
     sdata = pd.read_sql(sql, conn, index_col='date')
