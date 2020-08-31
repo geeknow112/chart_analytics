@@ -197,10 +197,10 @@ def outputSignal(df):
         df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
         '''
         # gain = lambda a, b: 'true' if a > b else 'false'
-        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
-        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
-        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
-        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
+        df.loc[i, 'gk_hanshin'] = gk_hn if zone_GPPP_1(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
+        df.loc[i, 'gk_hanshin_2'] = gk_hn if zone_GPPP_2(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
+        df.loc[i, 'gk_hanshin_5'] = gk_hn if zone_GPPP_5(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
+        df.loc[i, 'gk_hanshin_6'] = gk_hn if zone_GPPP_6(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
 
         # 指標[9の法則]の表示
         cl_pre = df.iloc[pre]['close']
@@ -246,6 +246,9 @@ def index_kka(av5, av7, av10): # 指標[草黒赤]の表示
 def index_akk(av5, av7, av10): # 指標[赤黒草]の表示
     return True if av5 < av7 < av10 else False
 
+def check_trend(av5, av20, av60): # 全体の傾きからトレンドを判定
+    return np.nan
+
 def zone_PPP_1(av5, av20, av60): # ゾーン[PPP1類]の判定 # av5 > av 20 > av60
     return True if gain(av20, av5) and gain(av60, av20) else False
 
@@ -257,6 +260,18 @@ def zone_PPP_5(av5, av20, av60): # ゾーン[PPP5類]の判定 # av60 > av5 > av
 
 def zone_PPP_6(av5, av20, av60): # ゾーン[PPP6類]の判定 # av5 > av60 > av20
     return True if gain(av60, av5) and gain(av20, av60) else False
+
+def zone_GPPP_1(av5, av20, av60):  # ゾーン[逆PPP1類]の判定 # av5 < av 20 < av60
+    return True if down(av20, av5) and down(av60, av20) else False
+
+def zone_GPPP_2(av5, av20, av60):  # ゾーン[逆PPP2類]の判定 # av20 < av 5 < av60
+    return True if down(av5, av20) and down(av60, av5) else False
+
+def zone_GPPP_5(av5, av20, av60):  # ゾーン[逆PPP5類]の判定 # av60 < av 5 < av20
+    return True if down(av5, av60) and down(av20, av5) else False
+
+def zone_GPPP_6(av5, av20, av60):  # ゾーン[逆PPP6類]の判定 # av5 < av 60 < av20
+    return True if down(av60, av5) and down(av20, av60) else False
 
 def hight(op, cl): # 陽線の確認
     return True if op < cl else False
