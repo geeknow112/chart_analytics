@@ -117,11 +117,8 @@ def scatterPoint():
 def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
     """ PPPゾーンの表示
     """
-    color = 'red' if (str == 'golden') else 'blue'
-    if (str == 'golden'):
-        opposite = 'ded'
-    else:
-        opposite = 'golden'
+    color = 'red' if str == 'golden' else 'blue'
+    opposite = 'ded' if str == 'golden' else 'golden'
 
     for dt, price in df.iterrows():
         start_flag = df.loc[dt][str+'_5_20']
@@ -129,18 +126,12 @@ def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
         status_20_60 = df.loc[dt][str+'_20_60']
         if (np.isnan(start_flag) == False):
             start_dt = dt
-            # pprint(dt)
-            #pprint(start_dt)
 
         if (np.isnan(end_flag) == False):
             end_dt = dt
-            # pprint(dt)
-            #pprint(end_dt)
 
         if (np.isnan(status_20_60) == False):
             dt_20_60 = dt
-            # pprint(dt)
-            #pprint(dt_20_60)
 
         if (start_dt and end_dt):
             ax.axvspan(start_dt, end_dt, facecolor=color, alpha=0.1)
@@ -150,7 +141,7 @@ def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
             end_dt = ''
             dt_20_60 = ''
 
-def outputSignal(df):
+def set_signal(df):
     """ シグナルの表示
     """
     # cnt9 初期化
@@ -311,6 +302,27 @@ def connectMysql():
     )
     return conn
 
+def fetchDatas(code):
+    conn = connectMysql()
+    conn.ping(reconnect=True)
+    # print(conn.is_connected())
+    cur = conn.cursor()
+    sql = "select date, open, hight, low, close, power, End From s" + str(code) + " where id > 7550;"
+    cur.execute(sql)
+    rows = cur.fetchall()
+    sdata = pd.read_sql(sql, conn, index_col='date')
+    cur.close()
+    conn.close()
+    return sdata
+
+def set_av(df):
+    term_5, term_7, term_10, term_20, term_60 = 5, 7, 10, 20, 60
+    df['av_5'] = df['close'].rolling(window=term_5).mean()
+    df['av_7'] = df['close'].rolling(window=term_7).mean()
+    df['av_10'] = df['close'].rolling(window=term_10).mean()
+    df['av_20'] = df['close'].rolling(window=term_20).mean()
+    df['av_60'] = df['close'].rolling(window=term_60).mean()
+
 conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
 with open(conf_file, 'r') as config:
     cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
@@ -322,21 +334,8 @@ codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
-    conn = connectMysql()
-    conn.ping(reconnect=True)
-    # print(conn.is_connected())
-    cur = conn.cursor()
-    sql = "select date, open, hight, low, close, power, End From s" + str(code) + " where id > 7550;"
-    cur.execute(sql)
-    rows = cur.fetchall()
-    sdata = pd.read_sql(sql, conn, index_col='date')
-    cur.close()
-    conn.close()
+    sdata = fetchDatas(code) # DBから株価データ取得
 
-    csv = "../../../source/repos/chart_gallery/stock_data/" + str(code) + ".csv"
-#csv = "../../../source/repos/chart_gallery/stock_data/" + str(codes[1]) + ".csv"
-
-    #df = dataRead() # CSV読み込み
     df = sdata.copy()
     df_ = df.copy()
 
@@ -346,15 +345,10 @@ for code in codes:
     #df_.index = mdates.date2num(df_.index)
     data = df_.reset_index().values
 
-    term_5, term_7, term_10, term_20, term_60 = 5, 7, 10, 20, 60
-    df['av_5'] = df['close'].rolling(window=term_5).mean()
-    df['av_7'] = df['close'].rolling(window=term_7).mean()
-    df['av_10'] = df['close'].rolling(window=term_10).mean()
-    df['av_20'] = df['close'].rolling(window=term_20).mean()
-    df['av_60'] = df['close'].rolling(window=term_60).mean()
-    outputSignal(df) # シグナルの表示
+    set_av(df) # 移動平均線設定
+    set_signal(df) # シグナルの表示
     #ret_code = checkSignal(df) # シグナル点灯確認
-    ret_codes = ([9101, 9107, 6326, 4183])
+    ret_codes = codes
 
     if code in ret_codes:
         init() # グラフ初期化
