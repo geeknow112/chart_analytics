@@ -159,19 +159,10 @@ def outputSignal(df):
         df.loc[i, 'cnt9'] = np.nan
 
     for i in df.index:
-        op = df['open']
-        cl = df['close']
-        av5 = df['av_5']
-        av7 = df['av_7']
-        av10 = df['av_10']
-        av20 = df['av_20']
-        av60 = df['av_60']
-
+        op, cl, av5, av7, av10, av20, av60 = df['open'], df['close'], df['av_5'], df['av_7'], df['av_10'], df['av_20'], df['av_60']
         now = df.index.get_loc(i)  # 行番号取得
         pre = now - 1
-        av5_p = df.iloc[pre]['av_5']
-        av20_p = df.iloc[pre]['av_20']
-        av60_p = df.iloc[pre]['av_60']
+        av5_p, av20_p, av60_p = df.iloc[pre]['av_5'], df.iloc[pre]['av_20'], df.iloc[pre]['av_60']
 
         # シグナル[下半身、逆下半身]の表示
         center = op[i] + ((cl[i] - op[i]) * 0.5)  # ローソク足の中心値
@@ -206,10 +197,7 @@ def outputSignal(df):
         df.loc[i, 'kka'] = av5[i] * 0.97 if index_kka(av5[i], av7[i], av10[i]) else np.nan
         df.loc[i, 'akk'] = av5[i] * 1.03 if index_akk(av5[i], av7[i], av10[i]) else np.nan
 
-        op = df.iloc[now]['open']
-        cl = df.iloc[now]['close']
-        op_pre = df.iloc[pre]['open']
-        cl_pre = df.iloc[pre]['close']
+        op_pre, cl_pre, op, cl = df.iloc[pre]['open'], df.iloc[pre]['close'], df.iloc[now]['open'], df.iloc[now]['close']
         # シグナル[買い: 陰の陰はらみ: 底値示唆]の表示
         #df.loc[i, 'kai_1'] = graph_position_up * 0.97 if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
         df.loc[i, 'kai_1'] = cl if low(op_pre, cl_pre) and low(op, cl) and down(op_pre, op) and gain(cl_pre, cl) else np.nan
