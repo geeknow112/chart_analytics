@@ -178,29 +178,19 @@ def outputSignal(df):
         graph_position_up = df['low'][i] * 0.98  # グラフで見やすいようにポジションをずらす
         graph_position_down = df['hight'][i] * 1.02  # グラフで見やすいようにポジションをずらす
         k_hn = graph_position_up if hight(av5[i], cl[i]) and hight(av5[i], center) and hight(op[i], cl[i]) else np.nan
-        '''
-        df.loc[i, 'k_hanshin'] = k_hn if av5[i] > av20[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-        df.loc[i, 'k_hanshin_2'] = k_hn if av20[i] > av5[i] > av60[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-        df.loc[i, 'k_hanshin_5'] = k_hn if av60[i] > av5[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-        df.loc[i, 'k_hanshin_6'] = k_hn if av5[i] > av60[i] > av20[i] and av5_p < av5[i] and av20_p < av20[i] and av60_p < av60[i] else np.nan
-        '''
-        df.loc[i, 'k_hanshin'] = k_hn if zone_PPP_1(av5[i], av20[i], av60[i]) and gain(av5_p, av5[i]) and gain(av20_p, av20[i]) else np.nan
-        df.loc[i, 'k_hanshin_2'] = k_hn if zone_PPP_2(av5[i], av20[i], av60[i]) and gain(av5_p, av5[i]) and gain(av20_p, av20[i]) else np.nan
-        df.loc[i, 'k_hanshin_5'] = k_hn if zone_PPP_5(av5[i], av20[i], av60[i]) and gain(av5_p, av5[i]) and gain(av20_p, av20[i]) else np.nan
-        df.loc[i, 'k_hanshin_6'] = k_hn if zone_PPP_6(av5[i], av20[i], av60[i]) and gain(av5_p, av5[i]) and gain(av20_p, av20[i]) else np.nan
+        gtrend = gain_trend(av5_p, av5[i], av20_p, av20[i], av60_p, av60[i])
+        df.loc[i, 'k_hanshin'] = k_hn if zone_PPP_1(av5[i], av20[i], av60[i]) and gtrend is True else np.nan
+        df.loc[i, 'k_hanshin_2'] = k_hn if zone_PPP_2(av5[i], av20[i], av60[i]) and gtrend is True else np.nan
+        df.loc[i, 'k_hanshin_5'] = k_hn if zone_PPP_5(av5[i], av20[i], av60[i]) and gtrend is True else np.nan
+        df.loc[i, 'k_hanshin_6'] = k_hn if zone_PPP_6(av5[i], av20[i], av60[i]) and gtrend is True else np.nan
 
         gk_hn = graph_position_down if low(av5[i], cl[i]) and low(av5[i], center) and low(op[i], cl[i]) else np.nan
-        '''
-        df.loc[i, 'gk_hanshin'] = gk_hn if av5[i] < av20[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-        df.loc[i, 'gk_hanshin_2'] = gk_hn if av20[i] < av5[i] < av60[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-        df.loc[i, 'gk_hanshin_5'] = gk_hn if av60[i] < av5[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-        df.loc[i, 'gk_hanshin_6'] = gk_hn if av5[i] < av60[i] < av20[i] and av5_p > av5[i] and av20_p > av20[i] and av60_p > av60[i] else np.nan
-        '''
         # gain = lambda a, b: 'true' if a > b else 'false'
-        df.loc[i, 'gk_hanshin'] = gk_hn if zone_GPPP_1(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
-        df.loc[i, 'gk_hanshin_2'] = gk_hn if zone_GPPP_2(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
-        df.loc[i, 'gk_hanshin_5'] = gk_hn if zone_GPPP_5(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
-        df.loc[i, 'gk_hanshin_6'] = gk_hn if zone_GPPP_6(av5[i], av20[i], av60[i]) and down(av5_p, av5[i]) and down(av20_p, av20[i]) else np.nan
+        dtrend = down_trend(av5_p, av5[i], av20_p, av20[i], av60_p, av60[i])
+        df.loc[i, 'gk_hanshin'] = gk_hn if zone_GPPP_1(av5[i], av20[i], av60[i]) and dtrend is True else np.nan
+        df.loc[i, 'gk_hanshin_2'] = gk_hn if zone_GPPP_2(av5[i], av20[i], av60[i]) and dtrend is True else np.nan
+        df.loc[i, 'gk_hanshin_5'] = gk_hn if zone_GPPP_5(av5[i], av20[i], av60[i]) and dtrend is True else np.nan
+        df.loc[i, 'gk_hanshin_6'] = gk_hn if zone_GPPP_6(av5[i], av20[i], av60[i]) and dtrend is True else np.nan
 
         # 指標[9の法則]の表示
         cl_pre = df.iloc[pre]['close']
@@ -246,8 +236,13 @@ def index_kka(av5, av7, av10): # 指標[草黒赤]の表示
 def index_akk(av5, av7, av10): # 指標[赤黒草]の表示
     return True if av5 < av7 < av10 else False
 
-def check_trend(av5, av20, av60): # 全体の傾きからトレンドを判定
-    return np.nan
+def gain_trend(av5_p, av5, av20_p, av20, av60_p, av60): # 全体の傾きからトレンドを判定
+    #return True if gain(av5_p, av5) and gain(av20_p, av20) and gain(av60_p, av60) else False
+    return True if gain(av5_p, av5) and gain(av20_p, av20) else False
+
+def down_trend(av5_p, av5, av20_p, av20, av60_p, av60): # 全体の傾きからトレンドを判定
+    #return True if down(av5_p, av5) and down(av20_p, av20) and down(av60_p, av60) else False
+    return True if down(av5_p, av5) and down(av20_p, av20) else False
 
 def zone_PPP_1(av5, av20, av60): # ゾーン[PPP1類]の判定 # av5 > av 20 > av60
     return True if gain(av20, av5) and gain(av60, av20) else False
