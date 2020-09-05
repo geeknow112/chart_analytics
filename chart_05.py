@@ -134,7 +134,6 @@ def zoneColor(str = ''):
             if (gc_20_60_dt and dc_5_20_dt): ax.axvspan(gc_20_60_dt, dc_5_20_dt, facecolor=color, alpha=0.2)
             strat_dt = dc_5_20_dt = gc_20_60_dt = ''
 
-
 def set_signal():
     """ シグナルの表示
     """
@@ -356,6 +355,23 @@ def drow_graph(code):
     zoneColor('golden')  # PPPゾーンの表示
     zoneColor('ded')  # PPPゾーンの表示
 
+def backtest():
+    bt = pd.DataFrame({'uri': 0,
+                       'kai': 0,
+                       'total': 0},
+                      index=df.index)
+    for dt in df.index:
+        o = df.loc[dt]['open']
+        c = df.loc[dt]['close']
+        if df.loc[dt]['k_hanshin'] > 0:
+            bt.loc[dt]['kai'] += 1
+        if low(o, c) is True:
+            #if bt.loc[dt]['kai_sum'] > 0 and low(o, c) is True:
+            #bt.loc[dt]['kai'] = bt.loc[dt]['kai_sum'] = 0
+            print(o)
+        bt.loc[dt]['total'] = bt['kai'].sum()
+    print(bt)
+
 conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
 with open(conf_file, 'r') as config:
     cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
@@ -386,6 +402,8 @@ for code in codes:
     if ret_code is not '':
         drow_graph(ret_code)
         plt.savefig('./charts/' + str(ret_code) + '.png')
+
+    #backtest() # シグナル発生時に建玉操作をシミュレーションする
 
 print(ret_codes)
 # base
