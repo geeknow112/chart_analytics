@@ -46,6 +46,15 @@ def main():
     # plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
     plt.xticks(range(xtick0, len(df), 5), [x for x in df.index][xtick0::5])
 
+    # 出来高のチャートをプロット
+    ax2 = ax.twinx()
+    mpf.volume_overlay(ax2, df['open'], df['close'], df['power'], width=0.5, colorup="yellow", colordown="yellow", alpha=0.3)
+    ax2.set_xlim([0, df.shape[0]])
+
+    # 出来高チャートは下側25%に収める
+    ax2.set_ylim([0, df['power'].max() * 7])
+    ax2.set_ylabel('power')
+
 def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
     """ ゴールデンクロス/デッドクロスしたタイミングの抽出
     """
@@ -83,35 +92,38 @@ def plotMA():
 
 def scatterPoint():
     #plt.scatter(50, 2500, s=100, marker="o",color='gold')
-    plt.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold', s=200, label="GC_5_20")
-    plt.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black', s=200, label="DC_5_20")
-    plt.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange', s=200, label="GC_20_60")
-    plt.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink', s=200, label="DC_20_60")
+    ax.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold', s=200, label="GC_5_20")
+    ax.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black', s=200, label="DC_5_20")
+    ax.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange', s=200, label="GC_20_60")
+    ax.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink', s=200, label="DC_20_60")
 
-    plt.scatter(x= df.index,y = df['k_hanshin'],marker='^',color='dodgerblue', label="K_1")
-    plt.scatter(x= df.index,y = df['k_hanshin_2'],marker='^',color='cyan', label="K_2")
-    plt.scatter(x= df.index,y = df['k_hanshin_5'],marker='^',color='chartreuse', label="K_5")
-    plt.scatter(x= df.index,y = df['k_hanshin_6'],marker='^',color='darkviolet', label="K_6")
-    plt.scatter(x= df.index,y = df['gk_hanshin'],marker='v',color='dodgerblue', label="GK_1")
-    plt.scatter(x= df.index,y = df['gk_hanshin_2'],marker='v',color='cyan', label="GK_2")
-    plt.scatter(x= df.index,y = df['gk_hanshin_5'],marker='v',color='chartreuse', label="GK_5")
-    plt.scatter(x= df.index,y = df['gk_hanshin_6'],marker='v',color='darkviolet', label="GK_6")
+    ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
+    ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
 
-    plt.scatter(x= df.index,y = df['kka'],marker='4',color='olive')
-    plt.scatter(x= df.index,y = df['akk'],marker='4',color='olive')
+    ax.scatter(x= df.index,y = df['k_hanshin'],marker='^',color='dodgerblue', label="K_1")
+    ax.scatter(x= df.index,y = df['k_hanshin_2'],marker='^',color='cyan', label="K_2")
+    ax.scatter(x= df.index,y = df['k_hanshin_5'],marker='^',color='chartreuse', label="K_5")
+    ax.scatter(x= df.index,y = df['k_hanshin_6'],marker='^',color='darkviolet', label="K_6")
+    ax.scatter(x= df.index,y = df['gk_hanshin'],marker='v',color='dodgerblue', label="GK_1")
+    ax.scatter(x= df.index,y = df['gk_hanshin_2'],marker='v',color='cyan', label="GK_2")
+    ax.scatter(x= df.index,y = df['gk_hanshin_5'],marker='v',color='chartreuse', label="GK_5")
+    ax.scatter(x= df.index,y = df['gk_hanshin_6'],marker='v',color='darkviolet', label="GK_6")
 
-    plt.scatter(x= df.index,y = df['kai_1'],marker='s',color='red', edgecolors='black', alpha=0.3, s=300, label="in-in-harami")
-    plt.scatter(x= df.index,y = df['uri_1'],marker='s',color='blue', edgecolors='black', alpha=0.3, s=300, label="you-you-harami")
+    ax.scatter(x= df.index,y = df['kka'],marker='4',color='olive')
+    ax.scatter(x= df.index,y = df['akk'],marker='4',color='olive')
 
-    plt.scatter(x= df.index,y = df['kai_2'],marker='o',color='red', alpha=0.3, s=400, label="idaki_you")
-    plt.scatter(x= df.index,y = df['uri_2'],marker='o',color='blue', alpha=0.3, s=400, label="idaki_in")
+    ax.scatter(x= df.index,y = df['kai_1'],marker='s',color='red', edgecolors='black', alpha=0.3, s=300, label="in-in-harami")
+    ax.scatter(x= df.index,y = df['uri_1'],marker='s',color='blue', edgecolors='black', alpha=0.3, s=300, label="you-you-harami")
+
+    ax.scatter(x= df.index,y = df['kai_2'],marker='o',color='red', alpha=0.3, s=400, label="idaki_you")
+    ax.scatter(x= df.index,y = df['uri_2'],marker='o',color='blue', alpha=0.3, s=400, label="idaki_in")
 
     cnt9 = df['cnt9'].values
     #print(cnt9)
     for i, d in df.iterrows():
         #print(d.cnt9)
         marker = '$' + str(d.cnt9) + '$' if d.cnt9 is not np.nan else ""
-        plt.scatter(x= i,y = d.hight + 25,marker=marker,color='black')
+        ax.scatter(x= i,y = d.hight + 25,marker=marker,color='black')
 #        plt.scatter(x= df.index,y = df['hight'] + 75,marker='$' + str(9) + '$',color='black')
 
 def zoneColor(str = ''):
@@ -143,7 +155,8 @@ def set_signal():
         df.loc[i, 'cnt9'] = np.nan
 
     for i in df.index:
-        op, cl, av5, av7, av10, av20, av60 = df['open'], df['close'], df['av_5'], df['av_7'], df['av_10'], df['av_20'], df['av_60']
+        op, cl, av5, av7, av10, av20, av60 = df['open'], df['close'], df['av_5'], df['av_7'], df['av_10'], df['av_20'], \
+                                             df['av_60']
         now = df.index.get_loc(i)  # 行番号取得
         pre = now - 1
         av5_p, av20_p, av60_p = df.iloc[pre]['av_5'], df.iloc[pre]['av_20'], df.iloc[pre]['av_60']
@@ -181,17 +194,44 @@ def set_signal():
         df.loc[i, 'kka'] = av5[i] * 0.97 if index_kka(av5[i], av7[i], av10[i]) else np.nan
         df.loc[i, 'akk'] = av5[i] * 1.03 if index_akk(av5[i], av7[i], av10[i]) else np.nan
 
-        op_pre, cl_pre, op, cl = df.iloc[pre]['open'], df.iloc[pre]['close'], df.iloc[now]['open'], df.iloc[now]['close']
+        op_pre, cl_pre, op, cl = df.iloc[pre]['open'], df.iloc[pre]['close'], df.iloc[now]['open'], df.iloc[now][
+            'close']
         # シグナル[買い: 陰の陰はらみ: 底値示唆]の表示
-        #df.loc[i, 'kai_1'] = graph_position_up * 0.97 if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
-        df.loc[i, 'kai_1'] = cl if low(op_pre, cl_pre) and low(op, cl) and down(op_pre, op) and gain(cl_pre, cl) else np.nan
+        # df.loc[i, 'kai_1'] = graph_position_up * 0.97 if op_pre > cl_pre and op > cl and op_pre > op and cl_pre < cl else np.nan
+        df.loc[i, 'kai_1'] = cl if low(op_pre, cl_pre) and low(op, cl) and down(op_pre, op) and gain(cl_pre,
+                                                                                                     cl) else np.nan
         # シグナル[売り: 陽の陽はらみ: 利益確定タイミング]の表示
-        df.loc[i, 'uri_1'] = cl if hight(op_pre, cl_pre) and hight(op, cl) and gain(op_pre, op) and down(cl_pre, cl) else np.nan
+        df.loc[i, 'uri_1'] = cl if hight(op_pre, cl_pre) and hight(op, cl) and gain(op_pre, op) and down(cl_pre,
+                                                                                                         cl) else np.nan
 
         # 陽の抱き線
         df.loc[i, 'kai_2'] = cl if idaki_sen_you(op_pre, cl_pre, op, cl) is True else np.nan
         # 陰の抱き線
         df.loc[i, 'uri_2'] = cl if idaki_sen_in(op_pre, cl_pre, op, cl) is True else np.nan
+
+
+def set_signal_shotgun():
+    """ シグナルの表示
+    """
+    for i in df.index:
+        op, cl, av5, av7, av10, av20, av60 = df['open'], df['close'], df['av_5'], df['av_7'], df['av_10'], df['av_20'], df['av_60']
+        now = df.index.get_loc(i)  # 行番号取得
+        pre = now - 1
+        av5_p, av20_p, av60_p = df.iloc[pre]['av_5'], df.iloc[pre]['av_20'], df.iloc[pre]['av_60']
+
+        # シグナル[下半身、逆下半身]の表示
+        center = op[i] + ((cl[i] - op[i]) * 0.5)  # ローソク足の中心値
+        graph_position_up = df['low'][i] * 0.95  # グラフで見やすいようにポジションをずらす
+        graph_position_down = df['hight'][i] * 1.05  # グラフで見やすいようにポジションをずらす
+        k_hn = graph_position_up if hight(av5[i], cl[i]) and hight(av5[i], center) and hight(op[i], cl[i]) else np.nan
+        gtrend = gain_trend(av5_p, av5[i], av20_p, av20[i], av60_p, av60[i])
+        #df.loc[i, 'k_sgun'] = k_hn if zone_PPP_1(av5[i], av20[i], av60[i]) and gtrend is True else np.nan
+        df.loc[i, 'k_sgun'] = k_hn if hight(av5[i], center) and gain(av5_p, av5[i]) else np.nan
+
+        gk_hn = graph_position_down if low(av5[i], cl[i]) and low(av5[i], center) and low(op[i], cl[i]) else np.nan
+        dtrend = down_trend(av5_p, av5[i], av20_p, av20[i], av60_p, av60[i])
+        #df.loc[i, 'gk_sgun'] = gk_hn if zone_GPPP_1(av5[i], av20[i], av60[i]) and dtrend is True else np.nan
+        df.loc[i, 'gk_sgun'] = gk_hn if av5[i] > center else np.nan
 
 def idaki_sen_you(op_pre, cl_pre, op, cl): # 陽の抱き線の抽出
     return True if low(op_pre, cl_pre) and gain(op_pre, cl) and down(cl_pre, op) and hight(op, cl) else np.nan
@@ -380,8 +420,8 @@ codes = [code for code in cf.index]
 #print(getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = [9101]
-#codes = [9101, 9104, 9107, 6326, 4183]
+#codes = [9101]
+codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
@@ -398,6 +438,7 @@ for code in codes:
 
     set_av() # 移動平均線設定
     set_signal() # シグナルの表示
+    set_signal_shotgun() # シグナルの表示
     ret_code = check_signal() # シグナル点灯確認
     if ret_code is not '':
         drow_graph(ret_code)
@@ -407,6 +448,6 @@ for code in codes:
 
 print(ret_codes)
 # base
-plt.legend()
+#plt.legend()
 #plt.show()
 
