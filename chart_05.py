@@ -114,32 +114,26 @@ def scatterPoint():
         plt.scatter(x= i,y = d.hight + 25,marker=marker,color='black')
 #        plt.scatter(x= df.index,y = df['hight'] + 75,marker='$' + str(9) + '$',color='black')
 
-def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
+def zoneColor(str = ''):
     """ PPPゾーンの表示
     """
     color = 'red' if str == 'golden' else 'blue'
     opposite = 'ded' if str == 'golden' else 'golden'
 
+    gc_5_20_dt = dc_5_20_dt = gc_20_60 = gc_20_60_dt = ''
     for dt, price in df.iterrows():
-        start_flag = df.loc[dt][str+'_5_20']
-        end_flag = df.loc[dt][opposite+'_5_20']
-        status_20_60 = df.loc[dt][str+'_20_60']
-        if (np.isnan(start_flag) == False):
-            start_dt = dt
+        gc_5_20 = df.loc[dt][str+'_5_20']
+        dc_5_20 = df.loc[dt][opposite+'_5_20']
+        gc_20_60 = df.loc[dt][str+'_20_60']
+        if (np.isnan(gc_5_20) == False): gc_5_20_dt = dt
+        if (np.isnan(dc_5_20) == False): dc_5_20_dt = dt
+        if (np.isnan(gc_20_60) == False): gc_20_60_dt = dt
 
-        if (np.isnan(end_flag) == False):
-            end_dt = dt
+        if (gc_5_20_dt is not '' and dc_5_20_dt is not ''):
+            ax.axvspan(gc_5_20_dt, dc_5_20_dt, facecolor=color, alpha=0.1)
+            if (gc_20_60_dt and dc_5_20_dt): ax.axvspan(gc_20_60_dt, dc_5_20_dt, facecolor=color, alpha=0.2)
+            strat_dt = dc_5_20_dt = gc_20_60_dt = ''
 
-        if (np.isnan(status_20_60) == False):
-            dt_20_60 = dt
-
-        if (start_dt and end_dt):
-            ax.axvspan(start_dt, end_dt, facecolor=color, alpha=0.1)
-            if (dt_20_60 and end_dt):
-                ax.axvspan(dt_20_60, end_dt, facecolor=color, alpha=0.2)
-            strat_dt = ''
-            end_dt = ''
-            dt_20_60 = ''
 
 def set_signal():
     """ シグナルの表示
@@ -321,8 +315,8 @@ def fetchDatas(code):
     cnt = cnt_taple[0]
     limit = 7550
     cnt = limit if cnt > limit else (cnt - 200) # 株価がlimit日数分ない場合、200日分を表示
-    #where = " where id > " + str(cnt)
-    where = " where id > 7150 and id < 7350"
+    where = " where id > " + str(cnt)
+    #where = " where id > 7350 and id < 7550"
 
     sql = "select date, open, hight, low, close, power, End From s" + str(code) + where + ";"
     cur.execute(sql)
