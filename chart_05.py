@@ -1,5 +1,6 @@
 import os as os
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import mpl_finance as mpf
@@ -44,7 +45,6 @@ def main():
     # plt.xticks(range(xtick0,len(df),5), [x.strftime('%Y-%m-%d') for x in df.index][xtick0::5])
     # plt.xticks(range(xtick0,len(df),5), [dt.datetime.strptime(x, '%Y-%m-%d') for x in df.index][xtick0::5])
     plt.xticks(range(xtick0, len(df), 5), [x for x in df.index][xtick0::5])
-
 
 def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
     """ ゴールデンクロス/デッドクロスしたタイミングの抽出
@@ -141,7 +141,7 @@ def zoneColor(str = '', start_dt = '', end_dt = '', dt_20_60 = ''):
             end_dt = ''
             dt_20_60 = ''
 
-def set_signal(df):
+def set_signal():
     """ シグナルの表示
     """
     # cnt9 初期化
@@ -259,7 +259,7 @@ def gain(pre, now): # 移動平均線が前日より上昇しているかどう�
 def down(pre, now): # 2項の比較で下落している場合、真
     return True if pre > now else False
 
-def checkSignal(df):
+def check_signal():
     """シグナル点灯有無確認
     """
 
@@ -279,10 +279,17 @@ def checkSignal(df):
             #pprint(df.iloc[now]['k_hanshin_6'])
             ret.append(dt if df.iloc[now]['k_hanshin'] > 0 and df.iloc[now]['kka'] > 0 else '')
             ret.append(dt if df.iloc[now]['k_hanshin_2'] > 0 and df.iloc[now]['kka'] > 0 else '')
-            ret.append(dt if df.iloc[now]['k_hanshin_5'] > 0 and df.iloc[now]['kka'] > 0 else '')
-            ret.append(dt if df.iloc[now]['k_hanshin_6'] > 0 and df.iloc[now]['kka'] > 0 else '')
+            #ret.append(dt if df.iloc[now]['k_hanshin_5'] > 0 and df.iloc[now]['kka'] > 0 else '')
+            #ret.append(dt if df.iloc[now]['k_hanshin_6'] > 0 and df.iloc[now]['kka'] > 0 else '')
+
+            #ret.append(dt if df.iloc[now]['gk_hanshin'] > 0 and df.iloc[now]['akk'] > 0 else '')
+            #ret.append(dt if df.iloc[now]['gk_hanshin_2'] > 0 and df.iloc[now]['akk'] > 0 else '')
+            #ret.append(dt if df.iloc[now]['gk_hanshin_5'] > 0 and df.iloc[now]['akk'] > 0 else '')
+            #ret.append(dt if df.iloc[now]['gk_hanshin_6'] > 0 and df.iloc[now]['akk'] > 0 else '')
             break
     print(code, ret)
+    if code == 9101 or code == 9104 or code == 9107:
+        return code
     return code if ret.count('') < len(ret) else ''
 
 def getCodeName(code):
@@ -307,7 +314,17 @@ def fetchDatas(code):
     conn.ping(reconnect=True)
     # print(conn.is_connected())
     cur = conn.cursor()
-    sql = "select date, open, hight, low, close, power, End From s" + str(code) + " where id > 7550;"
+
+    cnt_sql = "select count(id) From s" + str(code) + ";"
+    cur.execute(cnt_sql)
+    cnt_taple = cur.fetchone()
+    cnt = cnt_taple[0]
+    limit = 7550
+    cnt = limit if cnt > limit else (cnt - 200) # 株価がlimit日数分ない場合、200日分を表示
+    #where = " where id > " + str(cnt)
+    where = " where id > 7150 and id < 7350"
+
+    sql = "select date, open, hight, low, close, power, End From s" + str(code) + where + ";"
     cur.execute(sql)
     rows = cur.fetchall()
     sdata = pd.read_sql(sql, conn, index_col='date')
@@ -315,7 +332,7 @@ def fetchDatas(code):
     conn.close()
     return sdata
 
-def set_av(df):
+def set_av():
     term_5, term_7, term_10, term_20, term_60 = 5, 7, 10, 20, 60
     df['av_5'] = df['close'].rolling(window=term_5).mean()
     df['av_7'] = df['close'].rolling(window=term_7).mean()
@@ -323,14 +340,38 @@ def set_av(df):
     df['av_20'] = df['close'].rolling(window=term_20).mean()
     df['av_60'] = df['close'].rolling(window=term_60).mean()
 
+def drow_graph(code):
+    init()  # グラフ初期化
+    main()  # グラフメイン関数
+    fig.suptitle(str(code) + ':' + getCodeName(code), fontname="MS Gothic")  # title 表示
+
+    df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
+    pointCross('5_20', 'golden')
+    pointCross('20_60', 'golden')
+    pointCross('5_20', 'ded')
+    pointCross('20_60', 'ded')
+
+    plotMA()  # 移動平均線表示
+    scatterPoint()  # シグナル表示
+
+    ax.grid()
+    ax.set_xlim(-1, len(df))
+    # ax.text(20, 2000, 'test', size=20)
+    fig.autofmt_xdate()
+
+    zoneColor('golden')  # PPPゾーンの表示
+    zoneColor('ded')  # PPPゾーンの表示
+
 conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
 with open(conf_file, 'r') as config:
     cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
 codes = list()
-#codes = [code for code in cf.index]
+codes = [code for code in cf.index]
 #print(getCodeName(1332))%exit()
 
-codes = [9101, 9104, 9107, 6326, 4183]
+mpl.rcParams['figure.figsize'] = [20.0, 10.0]
+codes = [9101]
+#codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
@@ -345,38 +386,15 @@ for code in codes:
     #df_.index = mdates.date2num(df_.index)
     data = df_.reset_index().values
 
-    set_av(df) # 移動平均線設定
-    set_signal(df) # シグナルの表示
-    #ret_code = checkSignal(df) # シグナル点灯確認
-    ret_codes = codes
-
-    if code in ret_codes:
-        init() # グラフ初期化
-        main() # グラフメイン関数
-        fig.suptitle(str(code) + ':' + getCodeName(code), fontname="MS Gothic") # title 表示
-
-        df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
-        pointCross('5_20', 'golden')
-        pointCross('20_60', 'golden')
-        pointCross('5_20', 'ded')
-        pointCross('20_60', 'ded')
-
-        plotMA() # 移動平均線表示
-        scatterPoint() #シグナル表示
-
-        ax.grid()
-        ax.set_xlim(-1, len(df))
-        #ax.text(20, 2000, 'test', size=20)
-        fig.autofmt_xdate()
-
-        ppp = np.array( [] )
-        zoneColor('golden') # PPPゾーンの表示
-        zoneColor('ded') # PPPゾーンの表示
+    set_av() # 移動平均線設定
+    set_signal() # シグナルの表示
+    ret_code = check_signal() # シグナル点灯確認
+    if ret_code is not '':
+        drow_graph(ret_code)
+        plt.savefig('./charts/' + str(ret_code) + '.png')
 
 print(ret_codes)
-
 # base
 plt.legend()
-plt.show()
-#plt.savefig('test.png')
+#plt.show()
 
