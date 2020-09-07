@@ -89,8 +89,8 @@ def plotMA():
     ax.plot(df.index, df['close'].rolling(200).mean(), color='gold', label="MA(200)")
     ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', label="MA(300)")
     # ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="MA(5)")
-    ax.plot(df.index, df['latest_max'], color='red')
-    ax.plot(df.index, df['latest_min'], color='blue')
+    ax.plot(df.index, df['latest_max'], color='red', alpha=0.5, label="latest_max")
+    ax.plot(df.index, df['latest_min'], color='blue', alpha=0.5, label="latest_min")
 
 def scatterPoint():
     #plt.scatter(50, 2500, s=100, marker="o",color='gold')
@@ -215,35 +215,33 @@ def set_signal():
         df.loc[i, 'uri_2'] = cl if idaki_sen_in(op_pre, cl_pre, op, cl) is True else np.nan
 
         # 直近高値 # 直近安値
-        '''
-        for dt in reversed(df.index):
-            now = df.index.get_loc(dt)  # 行番号取得
-            pre = now - 1
-            now_hight = df.iloc[now]['hight']
-            pre_hight = df.iloc[pre]['hight']
-            now_low = df.iloc[now]['low']
-            pre_low = df.iloc[pre]['low']
-            if now_hight > pre_hight:
-                df.loc[dt, 'latest_max'] = now_hight
-            else:
-                df.loc[dt, 'latest_max'] = np.nan
-
-            if now_low < pre_low:
-                print(now, pre, dt, str(now_low) + ' < ' + str(pre_low))
-                df.loc[dt, 'latest_min'] = now_low
-            else:
-                df.loc[dt, 'latest_min'] = np.nan
-        '''
         now = df.index.get_loc(i)  # 行番号取得
         pre = now - 1 if now > 0 else 0
         now_dt, pre_dt = df.iloc[now].name, df.iloc[pre].name
         now_hight, pre_hight = df.loc[now_dt, 'hight'], df.loc[pre_dt, 'hight']
         now_low, pre_low = df.loc[now_dt, 'low'], df.loc[pre_dt, 'low']
-        if now_hight > pre_hight:
-            df.loc[i, 'latest_max'] = now_hight
-        if now_low < pre_low:
-            #print(now, pre, now_dt, pre_dt, str(now_low) + ' < ' + str(pre_low))
-            df.loc[i, 'latest_min'] = now_low
+        df.loc[i, 'latest_max'] = now_hight if now_hight > pre_hight else np.nan
+        df.loc[i, 'latest_min'] = now_low if now_low < pre_low else np.nan
+        # print(now, pre, now_dt, pre_dt, str(now_low) + ' < ' + str(pre_low))
+
+    '''
+    for i in df.index:
+        now = df.index.get_loc(i)  # 行番号取得
+        # 直近安値の次の陽線を抽出、その陽線の始値をA、
+        # Aからの直近高値を抽出、その高値をB、
+        # Bからの直近安値を抽出、その安値をC、
+        # (B - C) / (B - A) = 30%以上の時、
+        # B地点の高値を超える株価の時をエントリーポイントとする。
+        latest_min = df.loc[i]['latest_min']
+        post = now + 1
+        post_dt = df.iloc[post].name
+        post_op, post_cl = df.loc[post_dt, 'open'], df.loc[post_dt, 'close']
+        if latest_min is not np.nan:
+            if post < len(df):
+                if hight(post_op, post_cl) is True:
+                    A = df.loc[post_dt, 'open']
+                    print('A:' + str(A))
+    '''
 
 
 def set_signal_shotgun():
@@ -432,21 +430,47 @@ def drow_graph(code):
     zoneColor('ded')  # PPPゾーンの表示
 
 def backtest():
-    bt = pd.DataFrame({'uri': 0,
-                       'kai': 0,
-                       'total': 0},
-                      index=df.index)
     for dt in df.index:
-        o = df.loc[dt]['open']
-        c = df.loc[dt]['close']
-        if df.loc[dt]['k_hanshin'] > 0:
-            bt.loc[dt]['kai'] += 1
-        if low(o, c) is True:
-            #if bt.loc[dt]['kai_sum'] > 0 and low(o, c) is True:
-            #bt.loc[dt]['kai'] = bt.loc[dt]['kai_sum'] = 0
-            print(o)
-        bt.loc[dt]['total'] = bt['kai'].sum()
-    print(bt)
+        df.loc[dt, 'uri'] = 0
+        df.loc[dt, 'kai'] = 0
+        df.loc[dt, 'total'] = 0
+        now = df.index.get_loc(dt)  # 行番号取得
+        pre = now - 1 if now > 0 else 0
+        pre_uri = df.iloc[pre]['uri']
+        pre_kai = df.iloc[pre]['kai']
+        av5, av7, av10, av20, av60 = df['av_5'], df['av_7'], df['av_10'], df['av_20'], df['av_60']
+        av5_p, av20_p, av60_p = df.iloc[pre]['av_5'], df.iloc[pre]['av_20'], df.iloc[pre]['av_60']
+        op = df.loc[dt]['open']
+        cl = df.loc[dt]['close']
+        k_h = df.loc[dt]['k_hanshin']
+        gk_h = df.loc[dt]['gk_hanshin']
+
+        # 建玉 追加
+        df.loc[dt, 'kai'] = int(pre_kai + 1) if k_h > 0 else int(pre_kai)
+        df.loc[dt, 'uri'] = int(pre_uri + 1) if gk_h > 0 else int(pre_uri)
+
+        # 建玉 決済
+        gtrend = gain_trend(av5_p, av5[dt], av20_p, av20[dt], av60_p, av60[dt])
+        if zone_PPP_1(av5[dt], av20[dt], av60[dt]) and gtrend is True and low(op, cl):
+            df.loc[dt, 'total'] = int(pre_kai + df.iloc[now]['kai'])
+            df.loc[dt, 'kai'] = 0
+        else:
+            df.loc[dt, 'total'] = int(pre_kai)
+
+        dtrend = down_trend(av5_p, av5[dt], av20_p, av20[dt], av60_p, av60[dt])
+        if zone_GPPP_1(av5[dt], av20[dt], av60[dt]) and dtrend is True and hight(op, cl):
+            df.loc[dt, 'total'] = int(pre_uri + df.iloc[now]['uri'])
+            df.loc[dt, 'uri'] = 0
+        else:
+            df.loc[dt, 'total'] = int(pre_uri)
+
+        now_uri = df.iloc[now]['uri']
+        now_kai = df.iloc[now]['kai']
+        total = df.iloc[now]['total']
+        if (now_uri != pre_uri or now_kai != pre_kai):
+            ax.text(dt, op * 0.90, str(int(now_uri)) + '-' + str(int(now_kai)), size=10)
+            ax.text(dt, 1200, str(int(total)), size=10)
+    print(df)
 
 conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
 with open(conf_file, 'r') as config:
@@ -478,9 +502,9 @@ for code in codes:
     ret_code = check_signal() # シグナル点灯確認
     if ret_code is not '':
         drow_graph(ret_code)
-        #plt.savefig('./charts/' + str(ret_code) + '.png')
+        #plt.savefig('./charts/20200908/' + str(ret_code) + '.png')
 
-    #backtest() # シグナル発生時に建玉操作をシミュレーションする
+    backtest() # シグナル発生時に建玉操作をシミュレーションする
 
 print(ret_codes)
 # base
