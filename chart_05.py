@@ -89,6 +89,8 @@ def plotMA():
     ax.plot(df.index, df['close'].rolling(200).mean(), color='gold', label="MA(200)")
     ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', label="MA(300)")
     # ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="MA(5)")
+    ax.plot(df.index, df['latest_max'], color='red')
+    ax.plot(df.index, df['latest_min'], color='blue')
 
 def scatterPoint():
     #plt.scatter(50, 2500, s=100, marker="o",color='gold')
@@ -117,6 +119,9 @@ def scatterPoint():
 
     ax.scatter(x= df.index,y = df['kai_2'],marker='o',color='red', alpha=0.3, s=400, label="idaki_you")
     ax.scatter(x= df.index,y = df['uri_2'],marker='o',color='blue', alpha=0.3, s=400, label="idaki_in")
+
+    #ax.scatter(x= df.index,y = df['latest_max'],marker='_',color='red', alpha=0.5, s=1000, label="latest_min")
+    #ax.scatter(x= df.index,y = df['latest_min'],marker='_',color='blue', alpha=0.5, s=1000, label="latest_min")
 
     cnt9 = df['cnt9'].values
     #print(cnt9)
@@ -208,6 +213,37 @@ def set_signal():
         df.loc[i, 'kai_2'] = cl if idaki_sen_you(op_pre, cl_pre, op, cl) is True else np.nan
         # 陰の抱き線
         df.loc[i, 'uri_2'] = cl if idaki_sen_in(op_pre, cl_pre, op, cl) is True else np.nan
+
+        # 直近高値 # 直近安値
+        '''
+        for dt in reversed(df.index):
+            now = df.index.get_loc(dt)  # 行番号取得
+            pre = now - 1
+            now_hight = df.iloc[now]['hight']
+            pre_hight = df.iloc[pre]['hight']
+            now_low = df.iloc[now]['low']
+            pre_low = df.iloc[pre]['low']
+            if now_hight > pre_hight:
+                df.loc[dt, 'latest_max'] = now_hight
+            else:
+                df.loc[dt, 'latest_max'] = np.nan
+
+            if now_low < pre_low:
+                print(now, pre, dt, str(now_low) + ' < ' + str(pre_low))
+                df.loc[dt, 'latest_min'] = now_low
+            else:
+                df.loc[dt, 'latest_min'] = np.nan
+        '''
+        now = df.index.get_loc(i)  # 行番号取得
+        pre = now - 1 if now > 0 else 0
+        now_dt, pre_dt = df.iloc[now].name, df.iloc[pre].name
+        now_hight, pre_hight = df.loc[now_dt, 'hight'], df.loc[pre_dt, 'hight']
+        now_low, pre_low = df.loc[now_dt, 'low'], df.loc[pre_dt, 'low']
+        if now_hight > pre_hight:
+            df.loc[i, 'latest_max'] = now_hight
+        if now_low < pre_low:
+            #print(now, pre, now_dt, pre_dt, str(now_low) + ' < ' + str(pre_low))
+            df.loc[i, 'latest_min'] = now_low
 
 
 def set_signal_shotgun():
@@ -315,8 +351,8 @@ def check_signal():
             #ret.append(dt if df.iloc[now]['k_hanshin_5'] > 0 and df.iloc[now]['kka'] > 0 else '')
             #ret.append(dt if df.iloc[now]['k_hanshin_6'] > 0 and df.iloc[now]['kka'] > 0 else '')
 
-            #ret.append(dt if df.iloc[now]['gk_hanshin'] > 0 and df.iloc[now]['akk'] > 0 else '')
-            #ret.append(dt if df.iloc[now]['gk_hanshin_2'] > 0 and df.iloc[now]['akk'] > 0 else '')
+            ret.append(dt if df.iloc[now]['gk_hanshin'] > 0 and df.iloc[now]['akk'] > 0 else '')
+            ret.append(dt if df.iloc[now]['gk_hanshin_2'] > 0 and df.iloc[now]['akk'] > 0 else '')
             #ret.append(dt if df.iloc[now]['gk_hanshin_5'] > 0 and df.iloc[now]['akk'] > 0 else '')
             #ret.append(dt if df.iloc[now]['gk_hanshin_6'] > 0 and df.iloc[now]['akk'] > 0 else '')
             break
@@ -420,8 +456,8 @@ codes = [code for code in cf.index]
 #print(getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-#codes = [9101]
-codes = [9101, 9104, 9107, 6326, 4183]
+codes = [9101]
+#codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
@@ -442,12 +478,12 @@ for code in codes:
     ret_code = check_signal() # シグナル点灯確認
     if ret_code is not '':
         drow_graph(ret_code)
-        plt.savefig('./charts/' + str(ret_code) + '.png')
+        #plt.savefig('./charts/' + str(ret_code) + '.png')
 
     #backtest() # シグナル発生時に建玉操作をシミュレーションする
 
 print(ret_codes)
 # base
-#plt.legend()
-#plt.show()
+plt.legend()
+plt.show()
 
