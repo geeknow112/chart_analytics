@@ -42,13 +42,9 @@ def main():
     ax2.set_ylim([0, df['power'].max() * 7])
     ax2.set_ylabel('power')
 
-def getCodeName(code):
-    i = cf.index.get_loc(code)
-    return cf.iloc[i]['name']
-
 def drow_graph(code):
 
-    fig.suptitle(str(code) + ':' + getCodeName(code), fontname="MS Gothic")  # title 表示
+    fig.suptitle(str(code) + ':' + myf.getCodeName(code), fontname="MS Gothic")  # title 表示
 
     df['golden_5_20'] = df['golden_20_60'] = df['golden_5_60'] = df['ded_5_20'] = df['ded_20_60'] = df['ded_5_60'] = 0
     myf.pointCross(df, '5_20', 'golden')
@@ -70,12 +66,10 @@ def drow_graph(code):
     # myf.zoneColor(df, np, ax, 'golden')  # PPPゾーンの表示
     # myf.zoneColor(df, np, ax, 'ded')  # PPPゾーンの表示
 
-conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
-with open(conf_file, 'r') as config:
-    cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
+cf = myf.get_config()
 codes = list()
 codes = [code for code in cf.index]
-#print(getCodeName(1332))%exit()
+#print(myf.getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
 codes = [9101]

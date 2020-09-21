@@ -1,5 +1,14 @@
-import numpy as np
+import os as os
 import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import mpl_finance as mpf
+from pprint import pprint
+import datetime as dt
+import numpy as np
+import re
+import pylab
 
 #https://qiita.com/toyolab/items/1b5d11b5d376bd542022
 #https://qiita.com/kjybinp1105/items/db4efd07e20000c22f4e
@@ -474,3 +483,14 @@ def set_av(df):
     df['av_10'] = df['close'].rolling(window=term_10).mean()
     df['av_20'] = df['close'].rolling(window=term_20).mean()
     df['av_60'] = df['close'].rolling(window=term_60).mean()
+
+def get_config():
+    conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
+    with open(conf_file, 'r') as config:
+        cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
+    return cf
+
+def getCodeName(code):
+    cf = get_config()
+    i = cf.index.get_loc(code)
+    return cf.iloc[i]['name']
