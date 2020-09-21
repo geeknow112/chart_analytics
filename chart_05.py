@@ -9,6 +9,7 @@ import datetime as dt
 import numpy as np
 import re
 import pylab
+from lib import my_function as myf
 
 #https://qiita.com/toyolab/items/1b5d11b5d376bd542022
 #https://qiita.com/kjybinp1105/items/db4efd07e20000c22f4e
@@ -55,29 +56,6 @@ def main():
     ax2.set_ylim([0, df['power'].max() * 7])
     ax2.set_ylabel('power')
 
-def pointCross(status = '5_20', str = '', current_flag = 0, previous_flag = 1):
-    """ ゴールデンクロス/デッドクロスしたタイミングの抽出
-    """
-    if (status == '5_20'):
-        ma = {'pointString':str+'_5_20', 1:'av_5', 2:'av_20'}
-    elif (status == '20_60'):
-        ma = {'pointString':str+'_20_60', 1:'av_20', 2:'av_60'}
-    else:
-        ma = {'pointString':str+'_5_20', 1:'av_5', 2:'av_20'}
-
-    for i, price in df.iterrows():
-        if (str == 'golden'):
-            current_flag = 1 if (price[ma[1]] > price[ma[2]]) else 0
-        else:
-            current_flag = 1 if (price[ma[1]] < price[ma[2]]) else 0
-
-        if (current_flag * (1 - previous_flag)):
-            df.loc[i, ma['pointString']] = price[ma[2]]
-        else:
-            df.loc[i, ma['pointString']] = None
-
-        previous_flag = current_flag
-
 def plotMA():
     ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
     ax.plot(df.index, df['close'].rolling(7).mean(), color='black', label="MA(7)", linestyle=':')
@@ -94,10 +72,12 @@ def plotMA():
 
 def scatterPoint():
     #plt.scatter(50, 2500, s=100, marker="o",color='gold')
-    ax.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold', s=200, label="GC_5_20")
-    ax.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black', s=200, label="DC_5_20")
-    ax.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange', s=200, label="GC_20_60")
-    ax.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink', s=200, label="DC_20_60")
+    ax.scatter(x= df.index,y = df['golden_5_20'],marker='o',color='gold', s=150, label="GC_5_20")
+    ax.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black', s=150, label="DC_5_20")
+    ax.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange', s=150, label="GC_20_60")
+    ax.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink', s=150, label="DC_20_60")
+    ax.scatter(x= df.index,y = df['golden_5_60'],marker='o',color='lime', s=150, label="GC_5_60")
+    ax.scatter(x= df.index,y = df['ded_5_60'],marker='o',color='dodgerblue', s=150, label="DC_5_60")
 
     ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
     ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
@@ -130,26 +110,6 @@ def scatterPoint():
         marker = '$' + str(d.cnt9) + '$' if d.cnt9 is not np.nan else ""
         ax.scatter(x= i,y = d.hight + 25,marker=marker,color='black')
 #        plt.scatter(x= df.index,y = df['hight'] + 75,marker='$' + str(9) + '$',color='black')
-
-def zoneColor(str = ''):
-    """ PPPゾーンの表示
-    """
-    color = 'red' if str == 'golden' else 'blue'
-    opposite = 'ded' if str == 'golden' else 'golden'
-
-    gc_5_20_dt = dc_5_20_dt = gc_20_60 = gc_20_60_dt = ''
-    for dt, price in df.iterrows():
-        gc_5_20 = df.loc[dt][str+'_5_20']
-        dc_5_20 = df.loc[dt][opposite+'_5_20']
-        gc_20_60 = df.loc[dt][str+'_20_60']
-        if (np.isnan(gc_5_20) == False): gc_5_20_dt = dt
-        if (np.isnan(dc_5_20) == False): dc_5_20_dt = dt
-        if (np.isnan(gc_20_60) == False): gc_20_60_dt = dt
-
-        if (gc_5_20_dt is not '' and dc_5_20_dt is not ''):
-            ax.axvspan(gc_5_20_dt, dc_5_20_dt, facecolor=color, alpha=0.1)
-            if (gc_20_60_dt and dc_5_20_dt): ax.axvspan(gc_20_60_dt, dc_5_20_dt, facecolor=color, alpha=0.2)
-            strat_dt = dc_5_20_dt = gc_20_60_dt = ''
 
 def set_signal():
     """ シグナルの表示
@@ -376,7 +336,7 @@ def connectMysql():
     )
     return conn
 
-def fetchDatas(code):
+def fetchDatas(code, start, end):
     conn = connectMysql()
     conn.ping(reconnect=True)
     # print(conn.is_connected())
@@ -386,10 +346,12 @@ def fetchDatas(code):
     cur.execute(cnt_sql)
     cnt_taple = cur.fetchone()
     cnt = cnt_taple[0]
-    limit = 7550
+    limit = 7600
     cnt = limit if cnt > limit else (cnt - 200) # 株価がlimit日数分ない場合、200日分を表示
-    where = " where id > " + str(cnt)
-    #where = " where id > 7350 and id < 7550"
+    if start == 0 and end == 0:
+        where = " where id > " + str(cnt)
+    else:
+        where = " where id > " + str(start) + " and id < " + str(end)
 
     sql = "select date, open, hight, low, close, power, End From s" + str(code) + where + ";"
     cur.execute(sql)
@@ -412,11 +374,13 @@ def drow_graph(code):
     main()  # グラフメイン関数
     fig.suptitle(str(code) + ':' + getCodeName(code), fontname="MS Gothic")  # title 表示
 
-    df['golden_5_20'] = df['golden_20_60'] = df['ded_5_20'] = df['ded_20_60'] = 0
-    pointCross('5_20', 'golden')
-    pointCross('20_60', 'golden')
-    pointCross('5_20', 'ded')
-    pointCross('20_60', 'ded')
+    df['golden_5_20'] = df['golden_20_60'] = df['golden_5_60'] = df['ded_5_20'] = df['ded_20_60'] = df['ded_5_60'] = 0
+    myf.pointCross(df, '5_20', 'golden')
+    myf.pointCross(df, '20_60', 'golden')
+    myf.pointCross(df, '5_60', 'golden')
+    myf.pointCross(df, '5_20', 'ded')
+    myf.pointCross(df, '20_60', 'ded')
+    myf.pointCross(df, '5_60', 'ded')
 
     plotMA()  # 移動平均線表示
     scatterPoint()  # シグナル表示
@@ -426,8 +390,9 @@ def drow_graph(code):
     # ax.text(20, 2000, 'test', size=20)
     fig.autofmt_xdate()
 
-    zoneColor('golden')  # PPPゾーンの表示
-    zoneColor('ded')  # PPPゾーンの表示
+    myf.zone_color_golden(df, np, ax)
+    #myf.zoneColor(df, np, ax, 'golden')  # PPPゾーンの表示
+    #myf.zoneColor(df, np, ax, 'ded')  # PPPゾーンの表示
 
 def backtest():
     for dt in df.index:
@@ -480,12 +445,15 @@ codes = [code for code in cf.index]
 #print(getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = [9101]
+codes = [9107]
 #codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
-    sdata = fetchDatas(code) # DBから株価データ取得
+    start, end = 0, 0
+    #start, end = 7400, 7600
+    #start, end = 7500, 7700
+    sdata = fetchDatas(code, start, end) # DBから株価データ取得
 
     df = sdata.copy()
     df_ = df.copy()
@@ -502,9 +470,11 @@ for code in codes:
     ret_code = check_signal() # シグナル点灯確認
     if ret_code is not '':
         drow_graph(ret_code)
-        #plt.savefig('./charts/20200908/' + str(ret_code) + '.png')
+        #plt.savefig('./charts.tmp/20200912/' + str(ret_code) + '.png')
+        img_name = str(ret_code) + '_' + str(start) + '-' + str(end) if start != 0 and end != 0 else str(ret_code)
+        #plt.savefig('./charts.tmp/20200919/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
 
-    backtest() # シグナル発生時に建玉操作をシミュレーションする
+    #backtest() # シグナル発生時に建玉操作をシミュレーションする
 
 print(ret_codes)
 # base

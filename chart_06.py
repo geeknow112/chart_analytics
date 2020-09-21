@@ -468,11 +468,9 @@ def backtest():
         now_uri = df.iloc[now]['uri']
         now_kai = df.iloc[now]['kai']
         total = df.iloc[now]['total']
-        '''
         if (now_uri != pre_uri or now_kai != pre_kai):
             ax.text(dt, op * 0.90, str(int(now_uri)) + '-' + str(int(now_kai)), size=10)
             ax.text(dt, 1200, str(int(total)), size=10)
-        '''
     #print(df)
 
 conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
@@ -488,7 +486,7 @@ codes = [9101]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
-    start, end = 7350, 7550
+    start, end = 6350, 6550
     init()  # グラフ初期化
     while True:
         #fig = plt.figure()
