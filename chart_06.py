@@ -24,7 +24,7 @@ def main():
     """
     global fig, ax
     ohlc = np.vstack((range(len(df)), df.values.T)).T
-    mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
+    #mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
     w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
     xtick0 = (5 - w) % 5
 
@@ -50,9 +50,11 @@ def drow_graph(code):
     myf.pointCross(df, '5_20', 'golden')
     myf.pointCross(df, '20_60', 'golden')
     myf.pointCross(df, '5_60', 'golden')
+    myf.pointCross(df, '5_100', 'golden')
     myf.pointCross(df, '5_20', 'ded')
     myf.pointCross(df, '20_60', 'ded')
     myf.pointCross(df, '5_60', 'ded')
+    myf.pointCross(df, '5_100', 'ded')
 
     myf.plotMA(ax, df)  # 移動平均線表示
     myf.scatterPoint(df, np, ax)  # シグナル表示
@@ -62,7 +64,7 @@ def drow_graph(code):
     # ax.text(20, 2000, 'test', size=20)
     fig.autofmt_xdate()
 
-    myf.zone_color_golden_bk(df, np, ax)
+    myf.zone_color_golden(df, np, ax)
     # myf.zoneColor(df, np, ax, 'golden')  # PPPゾーンの表示
     # myf.zoneColor(df, np, ax, 'ded')  # PPPゾーンの表示
 
@@ -72,12 +74,12 @@ codes = [code for code in cf.index]
 #print(myf.getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = [9101]
+codes = [4502]
 #codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
-    start, end = 6350, 6550
+    start, end = 7350, 7550
     init()  # グラフ初期化
     while True:
         #fig = plt.figure()
@@ -98,7 +100,8 @@ for code in codes:
         myf.set_av(df) # 移動平均線設定
         myf.set_signal(df, np) # シグナルの表示
         myf.set_signal_shotgun(df, np) # シグナルの表示
-        ret_code = myf.check_signal(df, code) # シグナル点灯確認
+        #ret_code = myf.check_signal(df, code) # シグナル点灯確認
+        ret_code = code
         if ret_code is not '':
             main()  # グラフメイン関数
             drow_graph(ret_code)

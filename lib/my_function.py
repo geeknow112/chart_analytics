@@ -33,6 +33,8 @@ def pointCross(df, status = '5_20', str = '', current_flag = 0, previous_flag = 
         ma = {'pointString':str+'_20_60', 1:'av_20', 2:'av_60'}
     elif (status == '5_60'):
         ma = {'pointString': str + '_5_60', 1: 'av_5', 2: 'av_60'}
+    elif (status == '5_100'):
+        ma = {'pointString':str+'_5_100', 1:'av_5', 2:'av_100'}
     else:
         ma = {'pointString':str+'_5_20', 1:'av_5', 2:'av_20'}
 
@@ -151,8 +153,10 @@ def scatterPoint(df, np, ax):
     ax.scatter(x= df.index,y = df['ded_5_20'],marker='o',color='black', s=150, label="DC_5_20")
     ax.scatter(x= df.index,y = df['golden_20_60'],marker='o',color='orange', s=150, label="GC_20_60")
     ax.scatter(x= df.index,y = df['ded_20_60'],marker='o',color='pink', s=150, label="DC_20_60")
-    ax.scatter(x= df.index,y = df['golden_5_60'],marker='o',color='lime', s=150, label="GC_5_60")
-    ax.scatter(x= df.index,y = df['ded_5_60'],marker='o',color='dodgerblue', s=150, label="DC_5_60")
+    ax.scatter(x=df.index, y=df['golden_5_60'], marker='o', color='lime', s=150, label="GC_5_60")
+    ax.scatter(x=df.index, y=df['ded_5_60'], marker='o', color='dodgerblue', s=150, label="DC_5_60")
+    ax.scatter(x= df.index,y = df['golden_5_100'],marker='*',color='gold', s=150, label="GC_5_100")
+    ax.scatter(x= df.index,y = df['ded_5_100'],marker='*',color='black', s=150, label="DC_5_100")
 
     ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
     ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
@@ -477,12 +481,18 @@ def check_signal(df, code):
     return code if ret.count('') < len(ret) else ''
 
 def set_av(df):
-    term_5, term_7, term_10, term_20, term_60 = 5, 7, 10, 20, 60
+    '''
+    初期化
+    :param df:
+    :return:
+    '''
+    term_5, term_7, term_10, term_20, term_60, term_100 = 5, 7, 10, 20, 60, 100
     df['av_5'] = df['close'].rolling(window=term_5).mean()
     df['av_7'] = df['close'].rolling(window=term_7).mean()
     df['av_10'] = df['close'].rolling(window=term_10).mean()
     df['av_20'] = df['close'].rolling(window=term_20).mean()
     df['av_60'] = df['close'].rolling(window=term_60).mean()
+    df['av_100'] = df['close'].rolling(window=term_100).mean()
 
 def get_config():
     conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
