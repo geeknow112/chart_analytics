@@ -494,13 +494,27 @@ def set_av(df):
     df['av_60'] = df['close'].rolling(window=term_60).mean()
     df['av_100'] = df['close'].rolling(window=term_100).mean()
 
+
 def get_config():
     conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
     with open(conf_file, 'r') as config:
         cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
     return cf
 
+def get_config_group():
+    conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225_group.csv"
+    with open(conf_file, 'r') as config:
+        cf = pd.read_csv(config, quotechar='"', header=0, index_col=0)
+    return cf
+
 def getCodeName(code):
     cf = get_config()
     i = cf.index.get_loc(code)
-    return cf.iloc[i]['name']
+    gcode = cf.iloc[i]['gcode']
+    gname = getGroupName(gcode)
+    return gname + ':' + cf.iloc[i]['name']
+
+def getGroupName(gcode):
+    cfg = get_config_group()
+    g = cfg.index.get_loc(gcode)
+    return cfg.iloc[g]['gname']
