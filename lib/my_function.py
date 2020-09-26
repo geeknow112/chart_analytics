@@ -100,7 +100,7 @@ def zone_color_golden(df, np, ax):
     print(ret)
 
     for k, sdt, edt in ret:
-        print(k, sdt, edt)
+        #print(k, sdt, edt)
         if (k is 'g5x20'): ax.axvspan(sdt, edt, facecolor='red', alpha=0.1)
         if (k is 'g5x60'): ax.axvspan(sdt, edt, facecolor='red', alpha=0.2)
         if (k is 'g20x60'): ax.axvspan(sdt, edt, facecolor='red', alpha=0.3)
@@ -134,10 +134,12 @@ def zoneColor(df, np, ax, str = ''):
             d5x20_dt = g20x60_dt = ''
 
 def plotMA(ax, df):
+    ax.plot(df.index, df['close'].rolling(3).mean(), color='r', label="MA(3)", linestyle=':')
     ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
     ax.plot(df.index, df['close'].rolling(7).mean(), color='black', label="MA(7)", linestyle=':')
     ax.plot(df.index, df['close'].rolling(10).mean(), color='olive', label="MA(10)", linestyle=':')
     ax.plot(df.index, df['close'].rolling(20).mean(), color='g', label="MA(20)")
+    ax.plot(df.index, df['close'].rolling(25).mean(), color='g', label="MA(25)", linestyle=':')
     ax.plot(df.index, df['close'].rolling(60).mean(), color='b', label="MA(60)")
     ax.plot(df.index, df['close'].rolling(75).mean(), color='y', label="MA(75)")
     ax.plot(df.index, df['close'].rolling(100).mean(), color='orange', label="MA(100)")
@@ -486,11 +488,13 @@ def set_av(df):
     :param df:
     :return:
     '''
-    term_5, term_7, term_10, term_20, term_60, term_100 = 5, 7, 10, 20, 60, 100
+    term_3, term_5, term_7, term_10, term_20, term_25, term_60, term_100 = 3, 5, 7, 10, 20, 25, 60, 100
+    df['av_3'] = df['close'].rolling(window=term_3).mean()
     df['av_5'] = df['close'].rolling(window=term_5).mean()
     df['av_7'] = df['close'].rolling(window=term_7).mean()
     df['av_10'] = df['close'].rolling(window=term_10).mean()
     df['av_20'] = df['close'].rolling(window=term_20).mean()
+    df['av_25'] = df['close'].rolling(window=term_25).mean()
     df['av_60'] = df['close'].rolling(window=term_60).mean()
     df['av_100'] = df['close'].rolling(window=term_100).mean()
 
@@ -518,3 +522,9 @@ def getGroupName(gcode):
     cfg = get_config_group()
     g = cfg.index.get_loc(gcode)
     return cfg.iloc[g]['gname']
+
+def get_texts():
+    plt.gcf().text(0.05, 0.55, "ylabel", rotation=90, backgroundcolor='yellow')
+    plt.gcf().text(0.05, 0.90, "important", rotation=0, backgroundcolor='yellow')
+    plt.gcf().text(0.45, 0.90, "xlabel", backgroundcolor='yellow')
+    plt.gcf().text(0.40, 0.5, "arb text", backgroundcolor='yellow')

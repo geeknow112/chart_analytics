@@ -74,7 +74,7 @@ codes = [code for code in cf.index]
 #print(myf.getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = [4502]
+codes = [9104]
 #codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
@@ -106,6 +106,8 @@ for code in codes:
             main()  # グラフメイン関数
             drow_graph(ret_code)
             #plt.savefig('./charts.tmp/20200911/' + str(ret_code) + '.png')
+            myf.get_texts()
+            ax.legend()
 
         myf.backtest(df, ax) # シグナル発生時に建玉操作をシミュレーションする
         plt.pause(1)
@@ -114,6 +116,6 @@ for code in codes:
 
 print(ret_codes)
 # base
-plt.legend()
+#plt.legend()
 plt.show()
 

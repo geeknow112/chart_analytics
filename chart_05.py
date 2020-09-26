@@ -75,7 +75,7 @@ codes = [code for code in cf.index]
 #print(myf.getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = [4183]
+codes = [9101]
 #codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 #codes = [1801, 1803, 2432, 3402, 3407, 4183, 4502, 5012, 5201, 5108, 5401, 5711, 5713, 6301, 6501, 6752, 6857, 7012, 7202, 7203, 7733, 8002, 8035, 8316, 8591, 8604, 8802, 9104, 9983, 9984]
@@ -104,12 +104,16 @@ for code in codes:
         drow_graph(ret_code)
         #plt.savefig('./charts.tmp/20200912/' + str(ret_code) + '.png')
         img_name = str(ret_code) + '_' + str(start) + '-' + str(end) if start != 0 and end != 0 else str(ret_code)
-        #plt.savefig('./charts.tmp/20200925/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
+        img_name = img_name + '_' + myf.getCodeName(code).replace(':', '_')
+        myf.get_texts()
+        ax.legend()
+        #plt.savefig('./charts.tmp/20200926/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
 
     #myf.backtest() # シグナル発生時に建玉操作をシミュレーションする
 
 print(ret_codes)
 # base
-plt.legend()
+#ax.text('2020-09-07', 2800, str('test'), size=10)
+#plt.legend()
 plt.show()
 
