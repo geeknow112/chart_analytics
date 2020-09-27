@@ -134,7 +134,7 @@ def zoneColor(df, np, ax, str = ''):
             d5x20_dt = g20x60_dt = ''
 
 def plotMA(ax, df):
-    ax.plot(df.index, df['close'].rolling(3).mean(), color='r', label="MA(3)", linestyle=':')
+    ax.plot(df.index, df['close'].rolling(3).mean(), color='magenta', label="MA(3)", linestyle=':', linewidth=1.0)
     ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
     ax.plot(df.index, df['close'].rolling(7).mean(), color='black', label="MA(7)", linestyle=':')
     ax.plot(df.index, df['close'].rolling(10).mean(), color='olive', label="MA(10)", linestyle=':')
@@ -528,3 +528,25 @@ def get_texts():
     plt.gcf().text(0.05, 0.90, "important", rotation=0, backgroundcolor='yellow')
     plt.gcf().text(0.45, 0.90, "xlabel", backgroundcolor='yellow')
     plt.gcf().text(0.40, 0.5, "arb text", backgroundcolor='yellow')
+
+def set_bollinger_bands(df, ax, days=25):
+    #https://engineeringnote.hateblo.jp/entry/python/finance/bollinger_bands
+    x = df.index
+    c = df['close']
+    ma = c.rolling(window=days, min_periods=days-1).mean()
+    vol = c.rolling(window=days, min_periods=days-1).std()
+    bol1_p = pd.DataFrame(index=ma.index)
+    bol1_p = ma + vol
+    bol1_m = pd.DataFrame(index=ma.index)
+    bol1_m = ma - vol
+
+    bol2_p = pd.DataFrame(index=ma.index)
+    bol2_p = ma + (vol * 2)
+    bol2_m = pd.DataFrame(index=ma.index)
+    bol2_m = ma - (vol * 2)
+
+    #ax.fill_between(x, bol1_p, bol1_m, color="blue", alpha=0.2, label="$1\sigma$")
+    #ax.fill_between(x, bol2_p, bol2_m, color="blue", alpha=0.1, label="$2\sigma$")
+    ax.plot(x, bol1_p, bol1_m, color='grey', alpha=0.3, label="1a", linestyle='-', linewidth=1.3)
+    ax.plot(x, bol2_p, bol2_m, color='black', alpha=0.3, label="2a", linestyle='-', linewidth=1.3)
+

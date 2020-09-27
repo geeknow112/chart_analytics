@@ -24,7 +24,7 @@ def main():
     """
     global fig, ax
     ohlc = np.vstack((range(len(df)), df.values.T)).T
-    #mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
+    mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
     w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
     xtick0 = (5 - w) % 5
 
@@ -74,7 +74,7 @@ codes = [code for code in cf.index]
 #print(myf.getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = [9104]
+codes = []
 #codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
@@ -108,6 +108,7 @@ for code in codes:
             #plt.savefig('./charts.tmp/20200911/' + str(ret_code) + '.png')
             myf.get_texts()
             ax.legend()
+            myf.set_bollinger_bands(df, ax, 25)
 
         myf.backtest(df, ax) # シグナル発生時に建玉操作をシミュレーションする
         plt.pause(1)
