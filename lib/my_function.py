@@ -143,11 +143,38 @@ def plotMA(ax, df):
     ax.plot(df.index, df['close'].rolling(60).mean(), color='b', label="MA(60)")
     ax.plot(df.index, df['close'].rolling(75).mean(), color='y', label="MA(75)")
     ax.plot(df.index, df['close'].rolling(100).mean(), color='orange', label="MA(100)")
-    ax.plot(df.index, df['close'].rolling(200).mean(), color='gold', label="MA(200)")
+    ax.plot(df.index, df['close'].rolling(200).mean(), color='cornflowerblue', label="MA(200)")
     ax.plot(df.index, df['close'].rolling(300).mean(), color='pink', label="MA(300)")
     # ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="MA(5)")
     ax.plot(df.index, df['latest_max'], color='red', alpha=0.5, label="latest_max")
     ax.plot(df.index, df['latest_min'], color='blue', alpha=0.5, label="latest_min")
+
+def plotMA2(ax, df, code=np.nan):
+    #print(df.index[0])%exit()
+    #df5 = df5.drop(index=df.index[[range(0,100)]]).copy()
+    dfl = fetchDatasByDate(code, '2019-03-01', '2021-01-01')
+    df20 = fetchDatasByDate(code, '2020-01-06', '2021-01-01')
+    df25 = fetchDatasByDate(code, '2020-01-01', '2021-01-01')
+    df60 = fetchDatasByDate(code, '2019-11-01', '2021-01-01')
+    df75 = fetchDatasByDate(code, '2019-10-15', '2021-01-01')
+    df100 = fetchDatasByDate(code, '2019-09-01', '2021-01-01')
+    df200 = fetchDatasByDate(code, '2019-04-01', '2021-01-01')
+    df300 = fetchDatasByDate(code, '2019-02-01', '2021-01-01')
+
+    ax.plot(df.index, df['close'].rolling(3).mean(), color='magenta', label="MA(3)", linestyle=':', linewidth=1.0)
+    ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
+    ax.plot(df.index, df['close'].rolling(7).mean(), color='black', label="MA(7)", linestyle=':')
+    ax.plot(df.index, df['close'].rolling(10).mean(), color='olive', label="MA(10)", linestyle=':')
+    ax.plot(df20.index, df20['close'].rolling(20).mean(), color='g', label="MA(20)")
+    ax.plot(df25.index, df25['close'].rolling(25).mean(), color='g', label="MA(25)", linestyle=':')
+    ax.plot(df60.index, df60['close'].rolling(60).mean(), color='b', label="MA(60)")
+    ax.plot(df75.index, df75['close'].rolling(75).mean(), color='y', label="MA(75)")
+    ax.plot(df100.index, df100['close'].rolling(100).mean(), color='orange', label="MA(100)")
+    ax.plot(df200.index, df200['close'].rolling(200).mean(), color='cornflowerblue', label="MA(200)")
+    ax.plot(df300.index, df300['close'].rolling(300).mean(), color='pink', label="MA(300)")
+    # ax.plot(df.index, pd.Series(df['close']).rolling(5).mean(), color='g', label="MA(5)")
+    #ax.plot(df.index, df['latest_max'], color='red', alpha=0.5, label="latest_max")
+    #ax.plot(df.index, df['latest_min'], color='blue', alpha=0.5, label="latest_min")
 
 def scatterPoint(df, np, ax):
     #plt.scatter(50, 2500, s=100, marker="o",color='gold')
@@ -424,6 +451,7 @@ def connectMysql():
     )
     return conn
 
+
 def fetchDatas(code, start, end):
     conn = connectMysql()
     conn.ping(reconnect=True)
@@ -435,13 +463,27 @@ def fetchDatas(code, start, end):
     cnt_taple = cur.fetchone()
     cnt = cnt_taple[0]
     limit = 7600
-    cnt = limit if cnt > limit else (cnt - 100) # 株価がlimit日数分ない場合、100日分を表示
+    cnt = limit if cnt > limit else (cnt - 100)  # 株価がlimit日数分ない場合、100日分を表示
     if start == 0 and end == 0:
-        #where = " where id > " + str(cnt)
-        where = " where date >= '2020-01-01' and date < '2021-01-01';"
+        where = " where id > " + str(cnt)
     else:
         where = " where id > " + str(start) + " and id < " + str(end)
 
+    sql = "select date, open, hight, low, close, power, End From s" + str(code) + where + ";"
+    cur.execute(sql)
+    rows = cur.fetchall()
+    sdata = pd.read_sql(sql, conn, index_col='date')
+    cur.close()
+    conn.close()
+    return sdata
+
+def fetchDatasByDate(code, start, end):
+    conn = connectMysql()
+    conn.ping(reconnect=True)
+    # print(conn.is_connected())
+    cur = conn.cursor()
+
+    where = " where date >= '" + str(start) + "' and date < '" + str(end) + "';"
     sql = "select date, open, hight, low, close, power, End From s" + str(code) + where + ";"
     cur.execute(sql)
     rows = cur.fetchall()
