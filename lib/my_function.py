@@ -435,9 +435,10 @@ def fetchDatas(code, start, end):
     cnt_taple = cur.fetchone()
     cnt = cnt_taple[0]
     limit = 7600
-    cnt = limit if cnt > limit else (cnt - 200) # 株価がlimit日数分ない場合、200日分を表示
+    cnt = limit if cnt > limit else (cnt - 100) # 株価がlimit日数分ない場合、100日分を表示
     if start == 0 and end == 0:
-        where = " where id > " + str(cnt)
+        #where = " where id > " + str(cnt)
+        where = " where date >= '2020-01-01' and date < '2021-01-01';"
     else:
         where = " where id > " + str(start) + " and id < " + str(end)
 
@@ -545,8 +546,42 @@ def set_bollinger_bands(df, ax, days=25):
     bol2_m = pd.DataFrame(index=ma.index)
     bol2_m = ma - (vol * 2)
 
-    #ax.fill_between(x, bol1_p, bol1_m, color="blue", alpha=0.2, label="$1\sigma$")
-    #ax.fill_between(x, bol2_p, bol2_m, color="blue", alpha=0.1, label="$2\sigma$")
-    ax.plot(x, bol1_p, bol1_m, color='grey', alpha=0.3, label="1a", linestyle='-', linewidth=1.3)
-    ax.plot(x, bol2_p, bol2_m, color='black', alpha=0.3, label="2a", linestyle='-', linewidth=1.3)
+    ax.fill_between(x, bol1_p, bol1_m, color="turquoise", alpha=0.4, label="$1\sigma$")
+    ax.fill_between(x, bol2_p, bol2_m, color="turquoise", alpha=0.3, label="$2\sigma$")
+
+    #ax.plot(x, bol1_p, bol1_m, color='grey', alpha=0.3, label="1a", linestyle='-', linewidth=1.3)
+    #ax.plot(x, bol2_p, bol2_m, color='black', alpha=0.3, label="2a", linestyle='-', linewidth=1.3)
+
+def show_heatmap(codes):
+    #codes = [9101, 9104, 9107, 4183, 9984, 6326]
+    #codes = [9101, 9107, 6326, 1801, 1803, 2432, 3402, 3407, 4183, 4502, 5201, 5108, 5401, 5711, 5713, 6301, 6501, 6752, 6857, 7012, 7202, 7203, 7733, 8002, 8035, 8316, 8604, 8802, 9104, 9983, 9984]
+    df0 = fetchDatas(9101, 0, 0)
+
+    df = df0.copy()
+    df = df.drop('open', axis=1)
+    df = df.drop('hight', axis=1)
+    df = df.drop('low', axis=1)
+    df = df.drop('power', axis=1)
+    df = df.drop('End', axis=1)
+    # print(df_9101)%exit()
+
+    for code in codes[201:225]:
+        data = fetchDatas(code, 0, 0)
+        df.insert(1, str(code), data['close'])
+
+    corr_mat = df.corr(method='pearson')
+    df.corr(method='pearson')
+
+    import seaborn as sons
+    sons.heatmap(corr_mat,
+                vmin=-1.0,
+                vmax=1.0,
+                center=0,
+                annot=True, # True:格子の中に値を表示
+                fmt='.1f',
+                xticklabels=corr_mat.columns.values,
+                yticklabels=corr_mat.columns.values
+               )
+    plt.show()
+
 

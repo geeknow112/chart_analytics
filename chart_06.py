@@ -74,12 +74,12 @@ codes = [code for code in cf.index]
 #print(myf.getCodeName(1332))%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
-codes = []
+codes = [6326]
 #codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 ret_codes = list()
 for code in codes:
-    start, end = 7350, 7550
+    start, end = 7500, 7650
     init()  # グラフ初期化
     while True:
         #fig = plt.figure()
