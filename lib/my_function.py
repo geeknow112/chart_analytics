@@ -568,8 +568,12 @@ def getGroupName(gcode):
 
 def get_texts():
     plt.gcf().text(0.05, 0.55, "ylabel", rotation=90, backgroundcolor='yellow')
-    plt.gcf().text(0.05, 0.90, "important", rotation=0, backgroundcolor='yellow')
-    plt.gcf().text(0.45, 0.90, "xlabel", backgroundcolor='yellow')
+    plt.gcf().text(0.02, 0.95, "important:* 黄 -> 橙　(桃): 絶対的上昇エリア: 5<20<60+黄形成→5>20>60+橙形成 ", rotation=0, backgroundcolor='pink', fontname="MS Gothic")
+    plt.gcf().text(0.02, 0.925, "important:* 橙 -> 黒　(赤): ", rotation=0, backgroundcolor='red', fontname="MS Gothic")
+    plt.gcf().text(0.02, 0.90, "important:* 黒 -> 桃　(水): 絶対的下降エリア: ", rotation=0, backgroundcolor='lightblue', fontname="MS Gothic")
+    plt.gcf().text(0.02, 0.875, "important:* 桃 -> 黄　(青): ", rotation=0, backgroundcolor='royalblue', fontname="MS Gothic")
+    plt.gcf().text(0.02, 0.85, "important:* 黄 <-> 黒 : 様子見: ", rotation=0, backgroundcolor='yellow', fontname="MS Gothic")
+    plt.gcf().text(0.45, 0.90, "戦略1: GC_5x100形成前に買って、GC_20x60で利確", backgroundcolor='yellow', fontname="MS Gothic")
     plt.gcf().text(0.40, 0.5, "arb text", backgroundcolor='yellow')
 
 def set_bollinger_bands(df, ax, days=25):
