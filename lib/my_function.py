@@ -439,15 +439,20 @@ def backtest(df, ax):
     print(df)
 
 def connectMysql():
+    import yaml
+    with open('config.yaml') as file:
+        config = yaml.safe_load(file.read())
+    #print(config['host'])%exit()
+
     import mysql.connector as mydb
 
     # コネクションの作成
     conn = mydb.connect(
-        host='localhost',
-        port='3306',
-        user='root',
-        password='',
-        database='stocks'
+        host=config['host'],
+        port=config['port'],
+        user=config['user'],
+        password=config['password'],
+        database=config['database']
     )
     return conn
 
