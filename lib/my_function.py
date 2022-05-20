@@ -446,7 +446,7 @@ def connectMysql():
         host='localhost',
         port='3306',
         user='root',
-        password='rage5557',
+        password='',
         database='stocks'
     )
     return conn
@@ -629,5 +629,3 @@ def show_heatmap(codes):
                 yticklabels=corr_mat.columns.values
                )
     plt.show()
-
-
