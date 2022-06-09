@@ -111,7 +111,7 @@ for code in codes:
         myf.get_texts()
         ax.legend()
         myf.set_bollinger_bands(df, ax, 25)
-        plt.savefig('./charts/20220608/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
+        plt.savefig('./charts/20220609/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
 
     #myf.backtest() # シグナル発生時に建玉操作をシミュレーションする
 
