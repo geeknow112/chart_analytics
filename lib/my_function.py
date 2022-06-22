@@ -201,8 +201,8 @@ def scatterPoint(df, np, ax):
     ax.scatter(x= df.index,y = df['golden_5_100'],marker='*',color='gold', s=150, label="GC_5_100")
     ax.scatter(x= df.index,y = df['ded_5_100'],marker='*',color='black', s=150, label="DC_5_100")
 
-    ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
-    ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
+    #ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
+    #ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
 
     ax.scatter(x= df.index,y = df['k_hanshin'],marker='^',color='dodgerblue', label="K_1")
     ax.scatter(x= df.index,y = df['k_hanshin_2'],marker='^',color='cyan', label="K_2")
