@@ -440,7 +440,7 @@ def backtest(df, ax):
 
 def connectMysql():
     import yaml
-    with open('config.yaml') as file:
+    with open('/var/www/tmp/git_repo/chart_analytics/config.yaml') as file:
         config = yaml.safe_load(file.read())
     #print(config['host'])%exit()
 
@@ -548,15 +548,16 @@ def set_av(df):
 
 
 def get_config():
-    #conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225.csv"
-    conf_file = os.path.dirname(__file__) + "\\nikkei_225.csv"
+    #conf_file = "/var/www/tmp/git_repo/chart_analytics/stock_data/nikkei_225.csv"
+    conf_file = os.path.dirname(__file__) + "/../stock_data/nikkei_225.csv"
     with open(conf_file, 'r') as config:
         cf = pd.read_csv(config, quotechar='"', header=38, index_col=0)
     return cf
 
 def get_config_group():
+    conf_file = "/var/www/tmp/git_repo/chart_analytics/stock_data/nikkei_225_group.csv"
     #conf_file = "../../../source/repos/chart_gallery/stock_data/nikkei_225_group.csv"
-    config_file = "./nikkei_225_group.csv"
+    #config_file = "./nikkei_225_group.csv"
     with open(conf_file, 'r') as config:
         cf = pd.read_csv(config, quotechar='"', header=0, index_col=0)
     return cf
