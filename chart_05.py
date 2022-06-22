@@ -66,7 +66,7 @@ def drow_graph(code):
     # ax.text(20, 2000, 'test', size=20)
     fig.autofmt_xdate()
 
-    myf.zone_color_golden(df, np, ax)
+    #myf.zone_color_golden(df, np, ax)
     #myf.zoneColor(df, np, ax, 'golden')  # PPPゾーンの表示
     #myf.zoneColor(df, np, ax, 'ded')  # PPPゾーンの表示
 
@@ -86,7 +86,7 @@ for code in codes:
     start, end = 0, 0
     #start, end = 7400, 7600
     #start, end = 7500, 7700
-    #start, end = 8010, 8210
+    start, end = 8010, 8210
     sdata = myf.fetchDatas(code, start, end) # DBから株価データ取得
 
     df = sdata.copy()
@@ -110,7 +110,7 @@ for code in codes:
         img_name = img_name + '_' + myf.getCodeName(code).replace(':', '_')
         myf.get_texts()
         ax.legend()
-        myf.set_bollinger_bands(df, ax, 25)
+        #myf.set_bollinger_bands(df, ax, 25)
         plt.savefig('/var/www/tmp/git_repo/chart_analytics/charts/20220622/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
         #plt.savefig('./charts/20220621/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
 
