@@ -151,15 +151,29 @@ def plotMA(ax, df):
 
 def plotMA2(ax, df, code=np.nan):
     #print(df.index[0])%exit()
+    start = df.index[0]
+    end = df.index[-1]
+    dt_f = dt.datetime.strptime(start, "%Y-%m-%d")
+    dt_e = dt.datetime.strptime(end, "%Y-%m-%d")
+    st20 = dt_f + dt.timedelta(days=-20)
+    st25 = dt_f + dt.timedelta(days=-25)
+    st60 = dt_f + dt.timedelta(days=-60)
+    st75 = dt_f + dt.timedelta(days=-75)
+    st100 = dt_f + dt.timedelta(days=-130)
+    st200 = dt_f + dt.timedelta(days=-260)
+    st300 = dt_f + dt.timedelta(days=-390)
+
     #df5 = df5.drop(index=df.index[[range(0,100)]]).copy()
-    dfl = fetchDatasByDate(code, '2019-03-01', '2021-01-01')
-    df20 = fetchDatasByDate(code, '2020-01-06', '2021-01-01')
-    df25 = fetchDatasByDate(code, '2020-01-01', '2021-01-01')
-    df60 = fetchDatasByDate(code, '2019-11-01', '2021-01-01')
-    df75 = fetchDatasByDate(code, '2019-10-15', '2021-01-01')
-    df100 = fetchDatasByDate(code, '2019-09-01', '2021-01-01')
-    df200 = fetchDatasByDate(code, '2019-04-01', '2021-01-01')
-    df300 = fetchDatasByDate(code, '2019-02-01', '2021-01-01')
+    #dfl = fetchDatasByDate(code, '2021-09-21', '2022-06-23')
+    dfl = fetchDatasByDate(code, start, dt_e)
+    df20 = fetchDatasByDate(code, st20, dt_e)
+    df25 = fetchDatasByDate(code, st25, dt_e)
+    df60 = fetchDatasByDate(code, st60, dt_e)
+    df75 = fetchDatasByDate(code, st75, dt_e)
+    df100 = fetchDatasByDate(code, st100, dt_e)
+    df200 = fetchDatasByDate(code, st200, dt_e)
+    df300 = fetchDatasByDate(code, st300, dt_e)
+    #print(df20)%exit()
 
     ax.plot(df.index, df['close'].rolling(3).mean(), color='magenta', label="MA(3)", linestyle=':', linewidth=1.0)
     ax.plot(df.index, df['close'].rolling(5).mean(), color='r', label="MA(5)")
@@ -187,8 +201,8 @@ def scatterPoint(df, np, ax):
     ax.scatter(x= df.index,y = df['golden_5_100'],marker='*',color='gold', s=150, label="GC_5_100")
     ax.scatter(x= df.index,y = df['ded_5_100'],marker='*',color='black', s=150, label="DC_5_100")
 
-    ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
-    ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
+    #ax.scatter(x= df.index,y = df['k_sgun'],marker='^',color='blue', label="K_sgun1")
+    #ax.scatter(x= df.index,y = df['gk_sgun'],marker='v',color='black', label="GK_sgun1")
 
     ax.scatter(x= df.index,y = df['k_hanshin'],marker='^',color='dodgerblue', label="K_1")
     ax.scatter(x= df.index,y = df['k_hanshin_2'],marker='^',color='cyan', label="K_2")
