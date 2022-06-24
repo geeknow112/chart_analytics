@@ -19,12 +19,13 @@ def init():
     #fig = plt.figure(figsize=(24,10), dpi=300, facecolor='w')
     ax = plt.subplot()
 
-def main():
+def main(code):
     """ main関数
     """
     global fig, ax
     ohlc = np.vstack((range(len(df)), df.values.T)).T
     mpf.candlestick_ohlc(ax, ohlc, width=0.7, colorup='red', colordown='green')
+    print(code)
     w = dt.datetime.strptime(df.index[0], '%Y-%m-%d').weekday()
     xtick0 = (5 - w) % 5
 
@@ -44,8 +45,9 @@ def main():
 
 def drow_graph(code):
     init()  # グラフ初期化
-    main()  # グラフメイン関数
-    fig.suptitle(str(code) + ':' + myf.getCodeName(code), fontname="MS Gothic")  # title 表示
+    main(code)  # グラフメイン関数
+    #fig.suptitle(str(code) + ':' + myf.getCodeName(code), fontname="MS Gothic")  # title 表示
+    fig.suptitle(str(code)) # title 表示
 
     df['golden_5_20'] = df['golden_20_60'] = df['golden_5_60'] = df['golden_5_100'] = df['ded_5_20'] = df['ded_20_60'] = df['ded_5_60'] = df['ded_5_100'] = 0
     myf.pointCross(df, '5_20', 'golden')
@@ -63,7 +65,7 @@ def drow_graph(code):
 
     ax.grid()
     ax.set_xlim(-1, len(df))
-    # ax.text(20, 2000, 'test', size=20)
+    # ax.text(20, 2000, 'test', size=20) # text表示
     fig.autofmt_xdate()
 
     myf.zone_color_golden(df, np, ax)
@@ -78,8 +80,8 @@ codes = [code for code in cf.index]
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
 #codes = [9101]
-codes = [9101, 9104, 9107]
-#codes = [9101, 9104, 9107, 6326, 4183]
+#codes = [9101, 9104, 9107]
+codes = [9101, 9104, 9107, 6326, 4183]
 #codes = [9101, 9104, 9107, 4021, 4183, 4005, 4188, 4911, 3407, 4042, 6988, 3405, 4061, 4208, 4272, 4004, 4631, 4043, 4901, 4452, 4063, 8630, 8750, 8795, 8725, 8766, 8697, 8253, 8830, 8804, 8801, 3289, 8802, 9022, 9021, 9020, 9009, 9005, 9007, 9008, 9001, 9062, 9064]
 #codes = [1801, 1803, 2432, 3402, 3407, 4183, 4502, 5012, 5201, 5108, 5401, 5711, 5713, 6301, 6501, 6752, 6857, 7012, 7202, 7203, 7733, 8002, 8035, 8316, 8591, 8604, 8802, 9104, 9983, 9984]
 ret_codes = list()
@@ -108,11 +110,15 @@ for code in codes:
         drow_graph(ret_code)
         #plt.savefig('./charts.tmp/20200912/' + str(ret_code) + '.png')
         img_name = str(ret_code) + '_' + str(start) + '-' + str(end) if start != 0 and end != 0 else str(ret_code)
-        img_name = img_name + '_' + myf.getCodeName(code).replace(':', '_')
-        myf.get_texts()
+        #img_name = img_name + '_' + myf.getCodeName(code).replace(':', '_')
+        #myf.get_texts()
         ax.legend()
         #myf.set_bollinger_bands(df, ax, 25)
-        plt.savefig('/var/www/tmp/git_repo/chart_analytics/charts/20220622/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
+        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20220624/'
+        if os.path.exists(latest_dir) == False:
+            #print(latest_dir)%exit()
+            os.mkdir(latest_dir)
+        plt.savefig(latest_dir + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
         #plt.savefig('./charts/20220621/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
 
     #myf.backtest() # シグナル発生時に建玉操作をシミュレーションする
