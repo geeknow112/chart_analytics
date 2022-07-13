@@ -11,6 +11,7 @@ import re
 import pylab
 from lib import my_function as myf
 
+
 def init():
     """ 初期化
     """
@@ -18,6 +19,7 @@ def init():
     fig = plt.figure()
     #fig = plt.figure(figsize=(24,10), dpi=300, facecolor='w')
     ax = plt.subplot()
+
 
 def main(code):
     """ main関数
@@ -36,18 +38,20 @@ def main(code):
 
     # 出来高のチャートをプロット
     ax2 = ax.twinx()
-    mpf.volume_overlay(ax2, df['open'], df['close'], df['power'], width=0.5, colorup="yellow", colordown="yellow", alpha=0.3)
+    mpf.volume_overlay(ax2, df['open'], df['close'], df['power'],
+                       width=0.5, colorup="yellow", colordown="yellow", alpha=0.3)
     ax2.set_xlim([0, df.shape[0]])
 
     # 出来高チャートは下側25%に収める
     ax2.set_ylim([0, df['power'].max() * 7])
     ax2.set_ylabel('power')
 
+
 def drow_graph(code):
     init()  # グラフ初期化
     main(code)  # グラフメイン関数
-    #fig.suptitle(str(code) + ':' + myf.getCodeName(code), fontname="MS Gothic")  # title 表示
-    fig.suptitle(str(code)) # title 表示
+    # fig.suptitle(str(code) + ':' + myf.getCodeName(code), fontname="MS Gothic")  # title 表示
+    fig.suptitle(str(code))  # title 表示
 
     df['golden_5_20'] = df['golden_20_60'] = df['golden_5_60'] = df['golden_5_100'] = df['ded_5_20'] = df['ded_20_60'] = df['ded_5_60'] = df['ded_5_100'] = 0
     myf.pointCross(df, '5_20', 'golden')
@@ -59,7 +63,7 @@ def drow_graph(code):
     myf.pointCross(df, '5_60', 'ded')
     myf.pointCross(df, '5_100', 'ded')
 
-    #myf.plotMA(ax, df)  # 移動平均線表示
+    # myf.plotMA(ax, df)  # 移動平均線表示
     myf.plotMA2(ax, df, code)  # 移動平均線表示
     myf.scatterPoint(df, np, ax)  # シグナル表示
 
@@ -69,14 +73,15 @@ def drow_graph(code):
     fig.autofmt_xdate()
 
     myf.zone_color_golden(df, np, ax)
-    #myf.zoneColor(df, np, ax, 'golden')  # PPPゾーンの表示
-    #myf.zoneColor(df, np, ax, 'ded')  # PPPゾーンの表示
+    # myf.zoneColor(df, np, ax, 'golden')  # PPPゾーンの表示
+    # myf.zoneColor(df, np, ax, 'ded')  # PPPゾーンの表示
+
 
 cf = myf.get_config()
 codes = list()
 codes = [code for code in cf.index]
-#print(myf.getCodeName(1332))%exit()
-#myf.show_heatmap(codes)%exit()
+# print(myf.getCodeName(1332))%exit()
+# myf.show_heatmap(codes)%exit()
 
 mpl.rcParams['figure.figsize'] = [20.0, 10.0]
 #codes = [9101]
@@ -90,7 +95,7 @@ for code in codes:
     #start, end = 7400, 7600
     #start, end = 7500, 7700
     start, end = 8010, 8210
-    sdata = myf.fetchDatas(code, start, end) # DBから株価データ取得
+    sdata = myf.fetchDatas(code, start, end)  # DBから株価データ取得
 
     df = sdata.copy()
     df_ = df.copy()
@@ -101,31 +106,32 @@ for code in codes:
     #df_.index = mdates.date2num(df_.index)
     data = df_.reset_index().values
 
-    myf.set_av(df) # 移動平均線設定
-    myf.set_signal(df, np) # シグナルの表示
-    myf.set_signal_shotgun(df, np) # シグナルの表示
-    #ret_code = myf.check_signal(df, code) # シグナル点灯確認
+    myf.set_av(df)  # 移動平均線設定
+    myf.set_signal(df, np)  # シグナルの表示
+    myf.set_signal_shotgun(df, np)  # シグナルの表示
+    # ret_code = myf.check_signal(df, code) # シグナル点灯確認
     ret_code = code
     if ret_code is not '':
         drow_graph(ret_code)
         #plt.savefig('./charts.tmp/20200912/' + str(ret_code) + '.png')
-        img_name = str(ret_code) + '_' + str(start) + '-' + str(end) if start != 0 and end != 0 else str(ret_code)
+        img_name = str(ret_code) + '_' + str(start) + '-' + \
+            str(end) if start != 0 and end != 0 else str(ret_code)
         #img_name = img_name + '_' + myf.getCodeName(code).replace(':', '_')
-        #myf.get_texts()
+        # myf.get_texts()
         ax.legend()
         #myf.set_bollinger_bands(df, ax, 25)
-        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20220701/'
+        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20220713/'
         if os.path.exists(latest_dir) == False:
-            #print(latest_dir)%exit()
+            # print(latest_dir)%exit()
             os.mkdir(latest_dir)
-        plt.savefig(latest_dir + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
+        plt.savefig(latest_dir + img_name + '.png',
+                    facecolor='azure', bbox_inches='tight', pad_inches=0)
         #plt.savefig('./charts/20220621/' + img_name + '.png', facecolor='azure', bbox_inches='tight', pad_inches=0)
 
-    #myf.backtest() # シグナル発生時に建玉操作をシミュレーションする
+    # myf.backtest() # シグナル発生時に建玉操作をシミュレーションする
 
 print(ret_codes)
 # base
 #ax.text('2020-09-07', 2800, str('test'), size=10)
-#plt.legend()
-#plt.show()
-
+# plt.legend()
+# plt.show()
