@@ -94,7 +94,7 @@ for code in codes:
     start, end = 0, 0
     #start, end = 7400, 7600
     #start, end = 7500, 7700
-    start, end = 8050, 8250
+    start, end = 8150, 8350
     sdata = myf.fetchDatas(code, start, end)  # DBから株価データ取得
 
     df = sdata.copy()
@@ -120,7 +120,7 @@ for code in codes:
         # myf.get_texts()
         ax.legend()
         #myf.set_bollinger_bands(df, ax, 25)
-        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20220912/'
+        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20220913/'
         if os.path.exists(latest_dir) == False:
             # print(latest_dir)%exit()
             os.mkdir(latest_dir)
