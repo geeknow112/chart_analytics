@@ -120,7 +120,7 @@ for code in codes:
         # myf.get_texts()
         ax.legend()
         #myf.set_bollinger_bands(df, ax, 25)
-        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20221012/'
+        latest_dir = '/var/www/tmp/git_repo/chart_analytics/charts/20221013/'
         if os.path.exists(latest_dir) == False:
             # print(latest_dir)%exit()
             os.mkdir(latest_dir)
